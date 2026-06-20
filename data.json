@@ -1,1 +1,11 @@
-{"balance": -30.0, "operations": {"1": {"amount": -30.0, "date": "2026-06-14", "type": "expense", "category": "spotify"}}}
+{
+    "balance": -310.0,
+    "transactions": {
+        "1": {
+            "amount": -300.0,
+            "date": "2026-06-20",
+            "type": "expense",
+            "category": "naprawa lod\u00f3wki"
+        }
+    }
+}
