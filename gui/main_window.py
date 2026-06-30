@@ -3,6 +3,7 @@ from finance import Finance
 from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTabWidget, QPushButton, QHBoxLayout, QLabel, QTableWidget, QHeaderView, QTableWidgetItem, QAbstractItemView
 from PyQt6.QtGui import QFont
 from add_transaction_dialog import AddTransactionDialog
+from transaction_history import TransactionHistory
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -33,48 +34,80 @@ class MainWindow(QMainWindow):
         # Dodajemy dashboard
         self.create_dashboard()
 
+        # Zapisujemy aktualną zakładke
+        self.current_tab = "Dashboard"
+
     def create_navigation(self):
         # Tworzymy widget na zakładki
         tab_widget = QWidget()
 
         # Tworzymy layout dla widgetu na zakładki
-        tab_layout = QHBoxLayout(tab_widget)
+        self.tab_layout = QHBoxLayout(tab_widget)
 
         # Dodajemy przycisk "Dodaj transakcje"
-        transactions_button = QPushButton("Dodaj transakcje")
+        transaction_button = QPushButton("Dodaj transakcje")
 
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
-        transactions_button.clicked.connect(self.open_add_transaction_dialog)
+        transaction_button.clicked.connect(self.open_add_transaction_dialog)
 
         # Dodajemy przycisk "Dodaj transakcje" do layoutu na zakładki
-        tab_layout.addWidget(transactions_button)
+        self.tab_layout.addWidget(transaction_button)
 
-        # Przesuwamy przyciski na prawą stronę
-        tab_layout.addStretch()
+        # Dodajemy przycisk "Edytuj transakcję"
+        self.edit_button = QPushButton("Edytuj transakcje")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.edit_button.clicked.connect(self.on_edit_clicked)
+
+        # Dodajemy edit_button do layoutu na zakładki
+        self.tab_layout.addWidget(self.edit_button)
+
+        # Dodajemy przycisk "Usuń transakcję"
+        self.delete_button = QPushButton("Usuń transakcje")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.delete_button.clicked.connect(self.on_delete_clicked)
+
+        # Dodajemy delete_button do layoutu na zakładki
+        self.tab_layout.addWidget(self.delete_button)
+
+        # Ustawiamy widoczność przycisków "Dodaj transakcje" i "Edytuj transakcje" na False
+        self.edit_button.setVisible(False)
+
+        self.delete_button.setVisible(False)
+
+        # Przesuwamy przycisk na maksa w lewo
+        self.tab_layout.addStretch()
 
         # Dodajemy przycisk "Dashboard"
         dashboard_button = QPushButton("Dashboard")
 
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        dashboard_button.clicked.connect(self.show_dashboard)
+
         # Dodajemy dashboard_button do layoutu na zakładki
-        tab_layout.addWidget(dashboard_button)
+        self.tab_layout.addWidget(dashboard_button)
 
         # Dodajemy przycisk "Transakcje"
         transactions_button = QPushButton("Transakcje")
 
-        # Dodajemy dashboard_button do layoutu na zakładki
-        tab_layout.addWidget(transactions_button)
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        transactions_button.clicked.connect(self.show_transactions)
+
+        # Dodajemy transactions_button do layoutu na zakładki
+        self.tab_layout.addWidget(transactions_button)
 
         # Dodajemy przycisk "Cykliczne"
         cyclical_button = QPushButton("Cykliczne")
 
         # Dodajemy cyclical_button do layoutu na zakładki
-        tab_layout.addWidget(cyclical_button)
+        self.tab_layout.addWidget(cyclical_button)
 
-        # Dodajemy przycisk "Raporty"
-        report_button = QPushButton("Oszczędności")
+        # Dodajemy przycisk "Oszczędności"
+        savings_button = QPushButton("Oszczędności")
 
         # Dodajemy report_button do layoutu na zakładki
-        tab_layout.addWidget(report_button)
+        self.tab_layout.addWidget(savings_button)
 
         # Ustawiamy maksymalną wielkość dla widgetu, tab_widget
         tab_widget.setMaximumHeight(50)
@@ -85,13 +118,13 @@ class MainWindow(QMainWindow):
     # Główny dashboard
     def create_dashboard(self):
         # Tworzymy widget na treść
-        content_widget = QWidget()
+        self.content_widget = QWidget()
 
         # Tworzymy layout dla widgetu na treść
-        self.content_layout = QVBoxLayout(content_widget)
+        self.content_layout = QVBoxLayout(self.content_widget)
 
         # Dodajemy widget na treść do głównego layoutu
-        self.layout.addWidget(content_widget)
+        self.layout.addWidget(self.content_widget)
 
         # Wywołujemy widgety na górną i dolną treść
         self.create_top_section()
@@ -268,8 +301,72 @@ class MainWindow(QMainWindow):
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         dialog.exec()
 
-        # Korzystamy z funkcji refresh_dashboard, do odświeżenia dashboardu
+        if self.current_tab == "Dashboard":
+            # Korzystamy z funkcji refresh_dashboard, do odświeżenia dashboardu
+            self.refresh_dashboard()
+        elif self.current_tab == "Transactions":
+            # Korzystamy z funkcji refresh_history_table, do odświeżenia tabeli z historią transakcji
+            self.history.refresh_history_table()
+
+    # Ta funkcja usunie nam wszystkie widgety z dashboardu i zainicjalizuje klasę TransactionHistory
+    def show_transactions(self):
+        if self.current_tab == "Transactions":
+            return
+
+        # Ustawiamy widoczność widgetu na treść na False
+        self.content_widget.setVisible(False)
+
+        # Inicjalizujemy klasę TransactionHistory
+        self.history = TransactionHistory(self.finance)
+
+        # Dodajemy klasę history, do głównego layoutu
+        self.layout.addWidget(self.history)
+
+        self.current_tab = "Transactions"
+
+        # Ustawiamy widoczność przycisków "Dodaj transakcje" i "Edytuj transakcje" na True
+        self.edit_button.setVisible(True)
+
+        self.delete_button.setVisible(True)
+
+    # Ta funkcji wróci nam do głównego widgetu dashboard, o ile wszystkie wymagane warunki zostaną spełnione
+    def show_dashboard(self):
+        # Sprawdzamy aktualnie otwartą zakładkę
+        if self.current_tab == "Dashboard":
+            return
+
+        # Ustawiamy widoczność self.history na False
+        self.history.setVisible(False)
+
+        # Ustawiamy widoczność widgetu na treść na True
+        self.content_widget.setVisible(True)
+
+        # Ustawiamy widoczność przycisków "Dodaj transakcje" i "Edytuj transakcje" na False
+        self.edit_button.setVisible(False)
+
+        self.delete_button.setVisible(False)
+
+        # Odświeżamy dashboard
         self.refresh_dashboard()
+
+        self.current_tab = "Dashboard"
+
+    # Ta funkcji usunie nam wybraną transakcję, tylko jeśli będziemy znajdować się w oknie "Transactions"
+    def on_delete_clicked(self):
+        # Sprawdzamy aktualnie otwartą zakładkę
+        if self.current_tab == "Dashboard":
+            return
+
+        # Wywołujemy usunięcie transakcji
+        self.history.delete_transaction()
+
+    def on_edit_clicked(self):
+        # Sprawdzamy aktualnie otwartą zakładkę
+        if self.current_tab == "Dashboard":
+            return
+
+        # Wywołujemy okno do edycji transakcji
+        self.history.open_edit_dialog()
 
     # Tworzymy funkcje do odświeżania dashboardu
     def refresh_dashboard(self):
