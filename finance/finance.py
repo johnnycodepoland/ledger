@@ -5,7 +5,7 @@ import os
 class Finance:
     def __init__(self):
         # Łączymy się z bazą danych i blokujemy otwieranie bazy danych w folderze gui
-        db_path = os.path.join(os.path.dirname(__file__), "transactions.db")
+        db_path = os.path.join(os.path.dirname(__file__), "../transactions.db")
         self.connection = sqlite3.connect(db_path)
 
         # Tworzymy cursor

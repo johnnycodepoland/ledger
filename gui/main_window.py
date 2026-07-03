@@ -1,9 +1,9 @@
-from finance import Finance
-from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTabWidget, QPushButton, QHBoxLayout, QLabel, QTableWidget, QHeaderView, QTableWidgetItem, QAbstractItemView
+from finance.finance import Finance
+from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QTableWidget, QHeaderView, QTableWidgetItem, QAbstractItemView
 from PyQt6.QtGui import QFont
 from gui.add_transaction_dialog import AddTransactionDialog
 from gui.transaction_history import TransactionHistory
-from charts import Charts
+from gui.charts import Charts
 
 class MainWindow(QMainWindow):
     def __init__(self):
