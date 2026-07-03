@@ -19,6 +19,9 @@ class MainWindow(QMainWindow):
         # Ustawiamy rozmiar okna
         self.setGeometry(100, 200, 1500, 800)
 
+        # Blokujemy możliwość powiększania okna, powyżej określonych rozmiarów
+        self.setFixedSize(1500, 800)
+
         # Pusty pojemnik na zawartość okna
         central_widget = QWidget()
 

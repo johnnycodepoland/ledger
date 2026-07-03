@@ -26,7 +26,7 @@ class TransactionHistory(QWidget):
         table_layout = QVBoxLayout(table_container)
 
         # Ustawiamy wielkość "kontenera" na historię na transakcji
-        table_container.setFixedSize(1500, 800)
+        table_container.setFixedSize(1450, 650)
 
         # Dodajemy nazwę obiektu, dla table_container, aby uniknąć przekazywania stylu na "dzieci" table_container
         table_container.setObjectName("table_container")
@@ -117,16 +117,15 @@ class TransactionHistory(QWidget):
         # Inicjalizujemy klasę FilterTransactionHistory
         filter = FilterTransactionDialog()
 
-        # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
-        filter.exec()
+        # Sprawdzamy, czy formularz został zaakceptowany, korzystając z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokując przy tym korzystanie z wszystkich innych okien aplikacji
+        if filter.exec() == QDialog.DialogCode.Accepted:
+            # Zapisujemy dane z formularza do zmiennych, które zostaną wykorzystane przez refresh_history_table
+            type = filter.type
 
-        # Zapisujemy dane z formularza do zmiennych, które zostaną wykorzystane przez refresh_history_table
-        type = filter.type
+            category = filter.category
 
-        category = filter.category
-
-        # Odświeżamy tabele z historią transakcji
-        self.refresh_history_table(type, category)
+            # Odświeżamy tabele z historią transakcji
+            self.refresh_history_table(type, category)
 
     # Dodajemy funkcję, która odświeży nam historię transakcji po jakiejś aktywności np. usunięciu transakcji
     def refresh_history_table(self, type=None, category=None):
