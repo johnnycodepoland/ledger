@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QTa
 from PyQt6.QtGui import QFont
 from gui.add_transaction_dialog import AddTransactionDialog
 from gui.transaction_history import TransactionHistory
+from charts import Charts
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -300,6 +301,33 @@ class MainWindow(QMainWindow):
         # Dodajemy "kontener" na transakcje, do dolnego layoutu
         bottom_layout.addWidget(table_container)
 
+        # Tworzymy "kontener" na wykres, aby uniknąć błędu ze stylem widgetu na transakcje, który jest w formie tabeli
+        charts_container = QWidget()
+
+        # Ustawiamy layout dla "kontenera" na historię transakcji
+        charts_layout = QVBoxLayout(charts_container)
+
+        # Ustawiamy wielkość "kontenera" na wykresy
+        charts_container.setFixedSize(806, 480)
+
+        # Dodajemy nazwę obiektu, dla charts_container, aby uniknąć przekazywania stylu na "dzieci" table_container
+        charts_container.setObjectName("charts_container")
+
+        # Ustawiamy styl, tylko dla charts_container bez przekazywania na jego "dzieci"
+        charts_container.setStyleSheet("#charts_container {background-color: white; border-radius: 10px; padding: 10px;}")
+
+        # Tworzymy widget na wykres
+        self.chart = Charts()
+
+        # Rysujemy słupki na wykresie
+        self.chart.create_bar_chart(self.finance.return_income(), self.finance.return_expense())
+
+        # Dodajemy widget na wykres do layoutu na wykresy
+        charts_layout.addWidget(self.chart)
+
+        # Dodajemy "kontener" na wykresy, do dolnego layoutu
+        bottom_layout.addWidget(charts_container)
+
         # Wypychamy dolną część treści na maksa w lewo
         bottom_layout.addStretch()
 
@@ -363,6 +391,7 @@ class MainWindow(QMainWindow):
         # Odświeżamy dashboard
         self.refresh_dashboard()
 
+        # Ustawiamy aktualną zakładke
         self.current_tab = "Dashboard"
 
     # Ta funkcji usunie nam wybraną transakcję, tylko jeśli będziemy znajdować się w oknie "Transactions"
@@ -415,4 +444,7 @@ class MainWindow(QMainWindow):
             type = "wydatek" if transaction[3] == "expense" else "przychód"
             self.history_table.setItem(row, 2, QTableWidgetItem(type))
             self.history_table.setItem(row, 3, QTableWidgetItem(str(transaction[4])))
+
+        # Odświeżamy wykres
+        self.chart.refresh_charts(self.finance.return_income(), self.finance.return_expense())
 
