@@ -1,4 +1,5 @@
 import datetime
+import calendar
 import sqlite3
 import os
 
@@ -18,15 +19,16 @@ class Recurring:
             amount REAl,
             day INTEGER,
             type TEXT,
-            category TEXT)
+            category TEXT,
+            last_added TEXT)
             """)
 
     # Funkcja dodająca cyklicznę transakcję
     def add_recurring_transaction(self, amount, day, type, category):
         # Zapisujemy transakcję wraz z jej parametrami
         self.cursor.execute(
-            """INSERT INTO recurring_transactions (amount, day, type, category) VALUES (?, ?, ?, ?)""",
-            (amount, day, type, category)
+            """INSERT INTO recurring_transactions (amount, day, type, category, last_added) VALUES (?, ?, ?, ?, ?)""",
+            (amount, day, type, category, None)
         )
         # Zapisujemy zmiany i kończymy połączenie
         self.connection.commit()
@@ -65,19 +67,30 @@ class Recurring:
         # Zapisujemy zmiany i kończymy połączenie
         self.connection.commit()
 
+    # Funkcja, która sprawdza, czy w dzisiejszym dniu są do dodania jakieś stałe transakcje
     def process_recurring_transaction(self):
-        # Zapisujemy dzisiejszy dzień
+        # Zapisujemy dzisiejszy dzień, miesiąc i rok
         day = datetime.datetime.now().day
+        month = datetime.datetime.now().month
+        year = datetime.datetime.now().year
         # Zapisujemy wszystkie transakcje
         transactions = self.show_recurring_history()
+        print(transactions)
 
         for transaction in transactions:
-            # Sprawdzamym czy dzisiejszy dzień zgadza się z dniem cyklicznej transakcji
-            if transaction[2] == day:
+            # Zapisujemy do zmiennej ilość dni aktualnego miesiąca
+            number_of_days = calendar.monthrange(year, month)[1]
+            # Dodajemy transakcję, jeśli dzień się zgadza, albo jeśli dzień transakcji jest większy niż liczba dni w miesiącu i dziś jest ostatni dzień miesiąca.
+            if (int(transaction[2]) == day or (int(transaction[2]) > number_of_days and day == number_of_days)) and (transaction[5] != str(datetime.date.today())):
                 # Zapisujemy transakcję wraz z jej parametrami
                 self.cursor.execute(
                     """INSERT INTO transactions (amount, date, type, category) VALUES (?, ?, ?, ?)""",
                     (transaction[1], str(datetime.date.today()), transaction[3], transaction[4])
+                )
+                # Aktualizujemy datę ostatniego dodania transakcji
+                self.cursor.execute(
+                    """UPDATE recurring_transactions set last_added = ? WHERE id = ?""",
+                    (str(datetime.date.today()), transaction[0])
                 )
                 # Zapisujemy zmiany i kończymy połączenie
                 self.connection.commit()

@@ -1,9 +1,12 @@
 from finance.finance import Finance
 from PyQt6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QPushButton, QHBoxLayout, QLabel, QTableWidget, QHeaderView, QTableWidgetItem, QAbstractItemView
 from PyQt6.QtGui import QFont
-from gui.add_transaction_dialog import AddTransactionDialog
-from gui.transaction_history import TransactionHistory
+from gui.standing_orders.standing_orders import StandingOrders
+from gui.tranasactions.add_transaction_dialog import AddTransactionDialog
+from gui.tranasactions.transaction_history import TransactionHistory
 from gui.charts import Charts
+from finance.recurring import Recurring
+from gui.standing_orders.add_standing_order_dialog import AddStandingOrderDialog
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -12,6 +15,12 @@ class MainWindow(QMainWindow):
 
         # Inicjalizujemy klasę finance
         self.finance = Finance()
+
+        # Inicjalizujemy klasę recurring
+        self.recurring = Recurring()
+
+        # Sprawdzamy, czy jakieś stałe transakcje mają dziś miejsce
+        self.recurring.process_recurring_transaction()
 
         # Ustawiamy tytuł okna aplikacji
         self.setWindowTitle("Financial tracker")
@@ -48,13 +57,13 @@ class MainWindow(QMainWindow):
         self.tab_layout = QHBoxLayout(tab_widget)
 
         # Dodajemy przycisk "Dodaj transakcje"
-        transaction_button = QPushButton("Dodaj transakcje")
+        self.add_button = QPushButton("Dodaj transakcje")
 
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
-        transaction_button.clicked.connect(self.open_add_transaction_dialog)
+        self.add_button.clicked.connect(self.open_add_transaction_dialog)
 
         # Dodajemy przycisk "Dodaj transakcje" do layoutu na zakładki
-        self.tab_layout.addWidget(transaction_button)
+        self.tab_layout.addWidget(self.add_button)
 
         # Dodajemy przycisk "Edytuj transakcję"
         self.edit_button = QPushButton("Edytuj transakcje")
@@ -80,7 +89,7 @@ class MainWindow(QMainWindow):
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
         self.filter_button.clicked.connect(self.on_filter_clicked)
 
-        # Dodajemy delete_button do layoutu na zakładki
+        # Dodajemy filter_button do layoutu na zakładki
         self.tab_layout.addWidget(self.filter_button)
 
         # Ustawiamy widoczność przycisków "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" na False
@@ -89,6 +98,51 @@ class MainWindow(QMainWindow):
         self.delete_button.setVisible(False)
 
         self.filter_button.setVisible(False)
+
+        # Dodajemy przycisk "Dodaj transakcje" dla cyklicznych transakcji
+        self.so_add_button = QPushButton("Dodaj stałą transakcje")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.so_add_button.clicked.connect(self.on_so_add_clicked)
+
+        # Dodajemy przycisk "Dodaj transakcje" dla cyklicznych transakcji do layoutu na zakładki
+        self.tab_layout.addWidget(self.so_add_button)
+
+        # Dodajemy przycisk "Edytuj transakcję" dla cyklicznych transakcji
+        self.so_edit_button = QPushButton("Edytuj stałą transakcje")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.so_edit_button.clicked.connect(self.on_edit_clicked)
+
+        # Dodajemy edit_button dla cyklicznych transakcji do layoutu na zakładki
+        self.tab_layout.addWidget(self.so_edit_button)
+
+        # Dodajemy przycisk "Usuń transakcję" dla cyklicznych transakcji
+        self.so_delete_button = QPushButton("Usuń stałą transakcje")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.so_delete_button.clicked.connect(self.on_delete_clicked)
+
+        # Dodajemy delete_button do layoutu dla cyklicznych transakcji na zakładki
+        self.tab_layout.addWidget(self.so_delete_button)
+
+        # Dodajemy przycisk "Filtruj transakcję" dla cyklicznych transakcji
+        self.so_filter_button = QPushButton("Filtruj stałe transakcje")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.so_filter_button.clicked.connect(self.on_filter_clicked)
+
+        # Dodajemy filter_button dla cyklicznych transakcji do layoutu na zakładki
+        self.tab_layout.addWidget(self.so_filter_button)
+
+        # Ustawiamy widoczność przycisków "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" dla cyklicznych transakcji na False
+        self.so_add_button.setVisible(False)
+
+        self.so_edit_button.setVisible(False)
+
+        self.so_delete_button.setVisible(False)
+
+        self.so_filter_button.setVisible(False)
 
         # Przesuwamy przycisk na maksa w lewo
         self.tab_layout.addStretch()
@@ -113,6 +167,9 @@ class MainWindow(QMainWindow):
 
         # Dodajemy przycisk "Cykliczne"
         cyclical_button = QPushButton("Cykliczne")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        cyclical_button.clicked.connect(self.show_standing_orders)
 
         # Dodajemy cyclical_button do layoutu na zakładki
         self.tab_layout.addWidget(cyclical_button)
@@ -349,40 +406,22 @@ class MainWindow(QMainWindow):
             # Korzystamy z funkcji refresh_history_table, do odświeżenia tabeli z historią transakcji
             self.history.refresh_history_table()
 
-    # Ta funkcja usunie nam wszystkie widgety z dashboardu i zainicjalizuje klasę TransactionHistory
-    def show_transactions(self):
-        if self.current_tab == "Transactions":
-            return
-
-        # Ustawiamy widoczność widgetu na treść na False
-        self.content_widget.setVisible(False)
-
-        # Inicjalizujemy klasę TransactionHistory
-        self.history = TransactionHistory(self.finance)
-
-        # Dodajemy klasę history, do głównego layoutu
-        self.layout.addWidget(self.history)
-
-        self.current_tab = "Transactions"
-
-        # Ustawiamy widoczność przycisków "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" na True
-        self.edit_button.setVisible(True)
-
-        self.delete_button.setVisible(True)
-
-        self.filter_button.setVisible(True)
-
     # Ta funkcji wróci nam do głównego widgetu dashboard, o ile wszystkie wymagane warunki zostaną spełnione
     def show_dashboard(self):
         # Sprawdzamy aktualnie otwartą zakładkę
         if self.current_tab == "Dashboard":
             return
+        elif self.current_tab == "Transactions":
+            # Ustawiamy widoczność self.history na False
+            self.history.setVisible(False)
+        elif self.current_tab == "Standing Orders":
+            # Ustawiamy widoczność self.standing_orders na False
+            self.standing_orders.setVisible(False)
 
-        # Ustawiamy widoczność self.history na False
-        self.history.setVisible(False)
-
-        # Ustawiamy widoczność widgetu na treść na True
+        # Ustawiamy widoczność widgetu na treść i przycisku "Dodaj transakcje" na True
         self.content_widget.setVisible(True)
+
+        self.add_button.setVisible(True)
 
         # Ustawiamy widoczność przycisków "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" na False
         self.edit_button.setVisible(False)
@@ -391,11 +430,106 @@ class MainWindow(QMainWindow):
 
         self.filter_button.setVisible(False)
 
+        # Ustawiamy widoczność przycisków "Dodaj transakcje", "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" dla cyklicznych transakcji na False
+        self.so_add_button.setVisible(False)
+
+        self.so_edit_button.setVisible(False)
+
+        self.so_delete_button.setVisible(False)
+
+        self.so_filter_button.setVisible(False)
+
         # Odświeżamy dashboard
         self.refresh_dashboard()
 
         # Ustawiamy aktualną zakładke
         self.current_tab = "Dashboard"
+
+    # Ta funkcja ukryje nam wszystkie widgety z dashboardu i zainicjalizuje klasę TransactionHistory
+    def show_transactions(self):
+        if self.current_tab == "Transactions":
+            return
+        elif self.current_tab == "Standing Orders":
+            self.standing_orders.setVisible(False)
+
+        # Ustawiamy widoczność widgetu na treść na False
+        self.content_widget.setVisible(False)
+
+        # Sprawdzamy, czy obiekt history już istnieje przy pomocy wbudowanej w PyQt6 funkcji hasattr
+        if hasattr(self, "history"):
+            # Jeżeli istnieje zmieniamy tylko jego widoczność
+            self.history.setVisible(True)
+        else:
+            # Inicjalizujemy klasę TransactionHistory
+            self.history = TransactionHistory(self.finance)
+
+            # Dodajemy klasę history, do głównego layoutu
+            self.layout.addWidget(self.history)
+
+        # Ustawiamy aktualną zakładkę
+        self.current_tab = "Transactions"
+
+        # Odświeżamy tabele z transakcjami
+        self.history.refresh_history_table()
+
+        # Ustawiamy widoczność przycisków "Dodaj transakcje", "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" na True
+        self.add_button.setVisible(True)
+
+        self.edit_button.setVisible(True)
+
+        self.delete_button.setVisible(True)
+
+        self.filter_button.setVisible(True)
+
+        # Ustawiamy widoczność przycisków "Dodaj transakcje", "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" dla cyklicznych transakcji na False
+        self.so_add_button.setVisible(False)
+
+        self.so_edit_button.setVisible(False)
+
+        self.so_delete_button.setVisible(False)
+
+        self.so_filter_button.setVisible(False)
+
+    # Ta funkcja ukryje nam wszystkie widgety z dashboardu i zainicjalizuje klasę StandingOrders
+    def show_standing_orders(self):
+        if self.current_tab == "Standing Orders":
+            return
+        elif self.current_tab == "Transactions":
+            self.history.setVisible(False)
+
+        # Ustawiamy widoczność widgetu na treść na False
+        self.content_widget.setVisible(False)
+
+        # Sprawdzamy, czy obiekt standing_orders już istnieje przy pomocy wbudowanej w PyQt6 funkcji hasattr
+        if hasattr(self, "standing_orders"):
+            # Jeżeli istnieje zmieniamy tylko jego widoczność
+            self.standing_orders.setVisible(True)
+        else:
+            # A jeżeli nie istnieje, to tworzymy go inicjalizując klasę StandingOrders
+            self.standing_orders = StandingOrders(self.recurring)
+
+            # Dodajemy klasę standing_orders, do głównego layoutu
+            self.layout.addWidget(self.standing_orders)
+
+        self.current_tab = "Standing Orders"
+
+        # Ustawiamy widoczność standardowego przycisku "Dodaj transakcję", "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" na False
+        self.add_button.setVisible(False)
+
+        self.edit_button.setVisible(False)
+
+        self.delete_button.setVisible(False)
+
+        self.filter_button.setVisible(False)
+
+        # Ustawiamy widoczność przycisków "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" dla cyklicznych transakcji na True
+        self.so_add_button.setVisible(True)
+
+        self.so_edit_button.setVisible(True)
+
+        self.so_delete_button.setVisible(True)
+
+        self.so_filter_button.setVisible(True)
 
     # Ta funkcji usunie nam wybraną transakcję, tylko jeśli będziemy znajdować się w oknie "Transactions"
     def on_delete_clicked(self):
@@ -415,6 +549,44 @@ class MainWindow(QMainWindow):
         self.history.open_edit_dialog()
 
     def on_filter_clicked(self):
+        # Sprawdzamy aktualnie otwartą zakładkę
+        if self.current_tab == "Dashboard":
+            return
+
+        # Wywołujemy okno do edycji transakcji
+        self.history.open_filter_dialog()
+
+    # Ta funkcji pozwoli nam uniknąć otwierania okna dodawania stałej transakcji za każdym razem po włączeniu programu
+    def on_so_add_clicked(self):
+        if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
+            return
+
+        # Inicjalizujemy klasę AddTransactionDialog
+        so_add = AddStandingOrderDialog(self.recurring)
+
+        # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
+        so_add.exec()
+
+        # Odświeżamy tabele na stałe transakcje
+        self.standing_orders.refresh_standing_orders_table()
+
+    def on_so_delete_clicked(self):
+        # Sprawdzamy aktualnie otwartą zakładkę
+        if self.current_tab == "Dashboard":
+            return
+
+        # Wywołujemy usunięcie transakcji
+        self.history.delete_transaction()
+
+    def on_so_edit_clicked(self):
+        # Sprawdzamy aktualnie otwartą zakładkę
+        if self.current_tab == "Dashboard":
+            return
+
+        # Wywołujemy okno do edycji transakcji
+        self.history.open_edit_dialog()
+
+    def on_so_filter_clicked(self):
         # Sprawdzamy aktualnie otwartą zakładkę
         if self.current_tab == "Dashboard":
             return

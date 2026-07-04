@@ -1,8 +1,6 @@
-from tracemalloc import Filter
-
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTableWidget, QAbstractItemView, QHeaderView, QTableWidgetItem
-from gui.edit_transaction_dialog import EditTransactionDialog
-from gui.filter_transaction_dialog import FilterTransactionDialog
+from gui.tranasactions.edit_transaction_dialog import EditTransactionDialog
+from gui.tranasactions.filter_transaction_dialog import FilterTransactionDialog
 
 class TransactionHistory(QWidget):
     def __init__(self, finance):
@@ -15,7 +13,7 @@ class TransactionHistory(QWidget):
         # Ustawiamy pionowy layout
         self.central_layout = QVBoxLayout(self)
 
-        # Dodajemy tabele na historię transakcji
+        # Dodajemy widget na tabele na historię transakcji
         self.create_transaction_table()
 
     def create_transaction_table(self):
@@ -34,7 +32,7 @@ class TransactionHistory(QWidget):
         # Ustawiamy styl, tylko dla table_container bez przekazywania na jego "dzieci"
         table_container.setStyleSheet("#table_container {background-color: white; border-radius: 10px; padding: 10px;}")
 
-        # Dodajemy widget na historię transakcji
+        # Dodajemy tabele do widgetu na historię transakcji
         self.history_table = QTableWidget(0, 5)
 
         # Blokujemy możliwość edycji komórek w tabeli

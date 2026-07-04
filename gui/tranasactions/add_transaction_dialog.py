@@ -39,7 +39,7 @@ class AddTransactionDialog(QDialog):
         # Tworzymy obiekt QLineEdit, który pozwoli nam wprowadzać tekst
         self.category_input = QLineEdit()
 
-        # Ustawiamy nazwę dla placeholderu, do przyjmowania kategori transakcji
+        # Ustawiamy nazwę dla placeholderu, do przyjmowania kategorii transakcji
         self.category_input.setPlaceholderText("Kategoria")
 
         # Dodajemy widget do wprowadzania kategorii
