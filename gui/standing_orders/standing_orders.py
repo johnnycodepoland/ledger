@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTableWidget, QAbstractItemView, QHeaderView, QTableWidgetItem
-from gui.tranasactions.edit_transaction_dialog import EditTransactionDialog
-from gui.tranasactions.filter_transaction_dialog import FilterTransactionDialog
+from gui.standing_orders.edit_standing_order_dialog import EditStandingOrderDialog
+from gui.standing_orders.filter_standing_orders_dialog import FilterStandingOrdersDialog
 
 class StandingOrders(QWidget):
     def __init__(self, Recurring):
@@ -68,7 +68,7 @@ class StandingOrders(QWidget):
         # Dodajemy "kontener" na transakcje, do głównego layoutu
         self.central_layout.addWidget(standing_orders_container)
 
-    def delete_transaction(self):
+    def delete_standing_order(self):
         # Sprawdzamy, czy wiersz został uprzednio zaznaczony
         if self.standing_orders_table.currentRow() == -1:
             return
@@ -85,7 +85,7 @@ class StandingOrders(QWidget):
         # Usuwamy daną transakcję
         self.recurring.delete_recurring_transaction(id)
 
-        # Odświeżamy tabele z historią transakcji
+        # Odświeżamy tabele ze stałym transakcjami
         self.refresh_standing_orders_table()
 
     def open_edit_dialog(self):
@@ -102,8 +102,8 @@ class StandingOrders(QWidget):
         # Zamieniamy string "id" na int
         id = int(id)
 
-        # Inicjalizujemy klasę EditTransactionDialog
-        edit = EditTransactionDialog(id, self.finance)
+        # Inicjalizujemy klasę EditStandingOrderDialog
+        edit = EditStandingOrderDialog(id, self.recurring)
 
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         edit.exec()
@@ -113,7 +113,7 @@ class StandingOrders(QWidget):
 
     def open_filter_dialog(self):
         # Inicjalizujemy klasę FilterTransactionDialog
-        filter = FilterTransactionDialog()
+        filter = FilterStandingOrdersDialog()
 
         # Sprawdzamy, czy formularz został zaakceptowany, korzystając z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokując przy tym korzystanie z wszystkich innych okien aplikacji
         if filter.exec() == QDialog.DialogCode.Accepted:

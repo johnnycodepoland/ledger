@@ -1,8 +1,7 @@
 import datetime
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QMessageBox
 
-class FilterTransactionDialog(QDialog):
-    # Dodatkowo przekazujemy obiekt Finance, aby wykorzystać ją potem do zapisania dodanej transakcji w bazie danych
+class FilterTransactionsDialog(QDialog):
     def __init__(self):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
@@ -30,7 +29,7 @@ class FilterTransactionDialog(QDialog):
         # Tworzymy obiekt QLineEdit, który pozwoli nam wprowadzać tekst
         self.category_input = QLineEdit()
 
-        # Ustawiamy nazwę dla placeholderu, do przyjmowania kategori transakcji
+        # Ustawiamy nazwę dla placeholderu, do przyjmowania kategorii transakcji
         self.category_input.setPlaceholderText("Kategoria")
 
         # Dodajemy widget do wprowadzania kategorii
@@ -45,7 +44,7 @@ class FilterTransactionDialog(QDialog):
         # Dodajemy przycisk do zatwierdzania formularza, do głównego layoutu
         central_layout.addWidget(confirm_button)
 
-    # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
+    # Tworzymy funkcję, która zapisze nam typ i kategorie transakcji jako text i zaakceptuje prawidłowe dodawanie danych z formularza
     def filter_transaction(self):
         # Zamieniamy dane z formularza na tekst
         self.type = self.type_input.currentText()

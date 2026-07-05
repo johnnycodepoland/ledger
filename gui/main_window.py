@@ -112,7 +112,7 @@ class MainWindow(QMainWindow):
         self.so_edit_button = QPushButton("Edytuj stałą transakcje")
 
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
-        self.so_edit_button.clicked.connect(self.on_edit_clicked)
+        self.so_edit_button.clicked.connect(self.on_so_edit_clicked)
 
         # Dodajemy edit_button dla cyklicznych transakcji do layoutu na zakładki
         self.tab_layout.addWidget(self.so_edit_button)
@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         self.so_delete_button = QPushButton("Usuń stałą transakcje")
 
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
-        self.so_delete_button.clicked.connect(self.on_delete_clicked)
+        self.so_delete_button.clicked.connect(self.on_so_delete_clicked)
 
         # Dodajemy delete_button do layoutu dla cyklicznych transakcji na zakładki
         self.tab_layout.addWidget(self.so_delete_button)
@@ -130,7 +130,7 @@ class MainWindow(QMainWindow):
         self.so_filter_button = QPushButton("Filtruj stałe transakcje")
 
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
-        self.so_filter_button.clicked.connect(self.on_filter_clicked)
+        self.so_filter_button.clicked.connect(self.on_so_filter_clicked)
 
         # Dodajemy filter_button dla cyklicznych transakcji do layoutu na zakładki
         self.tab_layout.addWidget(self.so_filter_button)
@@ -556,12 +556,12 @@ class MainWindow(QMainWindow):
         # Wywołujemy okno do edycji transakcji
         self.history.open_filter_dialog()
 
-    # Ta funkcji pozwoli nam uniknąć otwierania okna dodawania stałej transakcji za każdym razem po włączeniu programu
+    # Ta funkcji pozwoli nam uniknąć otwierania okna dodawania stałej transakcji za każdym razem po włączeniu programu, korzystamy od razu z klasy AddStandingOrderDialog, bez integracji z klasą StandingOrders
     def on_so_add_clicked(self):
         if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
             return
 
-        # Inicjalizujemy klasę AddTransactionDialog
+        # Inicjalizujemy klasę AddStandingOrderDialog
         so_add = AddStandingOrderDialog(self.recurring)
 
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
@@ -571,28 +571,31 @@ class MainWindow(QMainWindow):
         self.standing_orders.refresh_standing_orders_table()
 
     def on_so_delete_clicked(self):
-        # Sprawdzamy aktualnie otwartą zakładkę
-        if self.current_tab == "Dashboard":
+        if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
             return
 
-        # Wywołujemy usunięcie transakcji
-        self.history.delete_transaction()
+        # Wywołujemy usunięcie stałej transakcji
+        self.standing_orders.delete_standing_order()
+
+        # Odświeżamy tabele na stałe transakcje
+        self.standing_orders.refresh_standing_orders_table()
 
     def on_so_edit_clicked(self):
-        # Sprawdzamy aktualnie otwartą zakładkę
-        if self.current_tab == "Dashboard":
+        if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
             return
 
-        # Wywołujemy okno do edycji transakcji
-        self.history.open_edit_dialog()
+        # Wywołujemy okno edycji stałej transakcji
+        self.standing_orders.open_edit_dialog()
+
+        # Odświeżamy tabele na stałe transakcje
+        self.standing_orders.refresh_standing_orders_table()
 
     def on_so_filter_clicked(self):
-        # Sprawdzamy aktualnie otwartą zakładkę
-        if self.current_tab == "Dashboard":
+        if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
             return
 
-        # Wywołujemy okno do edycji transakcji
-        self.history.open_filter_dialog()
+        # Wywołujemy okno filtracji stałych transakcji
+        self.standing_orders.open_filter_dialog()
 
     # Tworzymy funkcje do odświeżania dashboardu
     def refresh_dashboard(self):

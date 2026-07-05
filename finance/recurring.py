@@ -75,7 +75,6 @@ class Recurring:
         year = datetime.datetime.now().year
         # Zapisujemy wszystkie transakcje
         transactions = self.show_recurring_history()
-        print(transactions)
 
         for transaction in transactions:
             # Zapisujemy do zmiennej ilość dni aktualnego miesiąca

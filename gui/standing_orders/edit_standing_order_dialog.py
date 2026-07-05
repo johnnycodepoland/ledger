@@ -1,20 +1,20 @@
 import datetime
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QMessageBox
 
-class EditTransactionDialog(QDialog):
-    # Dodatkowo przekazujemy obiekt finance, aby wykorzystać go potem do zapisania dodanej transakcji w bazie danych
-    def __init__(self, id, finance):
+class EditStandingOrderDialog(QDialog):
+    # Dodatkowo przekazujemy obiekt recurring, aby wykorzystać go potem do zapisania dodanej transakcji w bazie danych
+    def __init__(self, id, recurring):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
         # Zapisujemy id jako self. żeby wszystkie funkcje miały do niego dostęp
         self.id = id
 
-        # Inicjalizujemy klasę finance
-        self.finance = finance
+        # Inicjalizujemy klasę recurring
+        self.recurring = recurring
 
         # Ustawiamy tytuł okna formularza
-        self.setWindowTitle("Edytuj transakcje")
+        self.setWindowTitle("Edytuj stałą transakcje")
 
         # Dodajemy pionowy layout
         central_layout = QVBoxLayout(self)
@@ -25,8 +25,17 @@ class EditTransactionDialog(QDialog):
         # Ustawiamy nazwę dla placeholderu, do przyjmowania kwoty transakcji
         self.amount_input.setPlaceholderText("Kwota")
 
-        # Dodajemy widget do wprowadzania kwoty
+        # Dodajemy widget do wprowadzania kwoty, do głównego layoutu
         central_layout.addWidget(self.amount_input)
+
+        # Tworzymy obiekt QLineEdit, który pozwoli nam wprowadzać tekst
+        self.day_input = QLineEdit()
+
+        # Ustawiamy nazwę dla placeholderu, do przyjmowania kwoty transakcji
+        self.day_input.setPlaceholderText("Dzień miesiąca (1-31)")
+
+        # Dodajemy widget do wprowadzania dnia, do głównego layoutu
+        central_layout.addWidget(self.day_input)
 
         # Tworzymy obiekt QComboBox, który pozwoli nam wybierać elementy z rozwijanej listy
         self.type_input = QComboBox()
@@ -49,21 +58,29 @@ class EditTransactionDialog(QDialog):
         central_layout.addWidget(self.category_input)
 
         # Dodajemy przycisk do zatwierdzania formularza
-        confirm_button = QPushButton("Edytuj transakcje")
+        confirm_button = QPushButton("Edytuj stałą transakcje")
 
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku
-        confirm_button.clicked.connect(self.edit_transaction)
+        confirm_button.clicked.connect(self.edit_standing_order)
 
         # Dodajemy przycisk do zatwierdzania formularza, do głównego layoutu
         central_layout.addWidget(confirm_button)
 
     # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
-    def edit_transaction(self):
+    def edit_standing_order(self):
         # Wyciągamy z wartość tekstową, z pól formularza, przy pomocy metody text()
         try:
             amount = float(self.amount_input.text())
         except ValueError:
             QMessageBox.information(self, "Błąd", "Podaj poprawną kwotę transakcji",)
+            return
+        try:
+            day = int(self.day_input.text())
+            if day < 1 or day > 31:
+                # Jeżeli podany dzień nie będzie prawidłowy, to zostanie wywołany ValueError
+                raise ValueError
+        except ValueError:
+            QMessageBox.information(self, "Błąd", "Podaj poprawny dzień (1-31)")
             return
         type = self.type_input.currentText()
         category = self.category_input.text()
@@ -76,7 +93,7 @@ class EditTransactionDialog(QDialog):
             amount = 0 - amount
 
         # Zapisujemy transakcję korzystając z funkcji klasy Finance
-        self.finance.edit_transaction(self.id, amount,  str(datetime.date.today()), type, category)
+        self.recurring.edit_recurring_transaction(self.id, amount,  day, type, category)
 
         # Akceptujemy prawidłowe zakończenie, dodawania danych z formularza
         self.accept()

@@ -1,32 +1,20 @@
 import datetime
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QMessageBox
 
-class EditTransactionDialog(QDialog):
-    # Dodatkowo przekazujemy obiekt finance, aby wykorzystać go potem do zapisania dodanej transakcji w bazie danych
-    def __init__(self, id, finance):
+class FilterStandingOrdersDialog(QDialog):
+    # Dodatkowo przekazujemy obiekt recurring, aby wykorzystać go potem do zapisania dodanej transakcji w bazie danych
+    def __init__(self):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
-        # Zapisujemy id jako self. żeby wszystkie funkcje miały do niego dostęp
-        self.id = id
-
-        # Inicjalizujemy klasę finance
-        self.finance = finance
-
         # Ustawiamy tytuł okna formularza
-        self.setWindowTitle("Edytuj transakcje")
+        self.setWindowTitle("Filtruj stałe transakcje")
 
         # Dodajemy pionowy layout
         central_layout = QVBoxLayout(self)
 
         # Tworzymy obiekt QLineEdit, który pozwoli nam wprowadzać tekst
         self.amount_input = QLineEdit()
-
-        # Ustawiamy nazwę dla placeholderu, do przyjmowania kwoty transakcji
-        self.amount_input.setPlaceholderText("Kwota")
-
-        # Dodajemy widget do wprowadzania kwoty
-        central_layout.addWidget(self.amount_input)
 
         # Tworzymy obiekt QComboBox, który pozwoli nam wybierać elementy z rozwijanej listy
         self.type_input = QComboBox()
@@ -49,34 +37,23 @@ class EditTransactionDialog(QDialog):
         central_layout.addWidget(self.category_input)
 
         # Dodajemy przycisk do zatwierdzania formularza
-        confirm_button = QPushButton("Edytuj transakcje")
+        confirm_button = QPushButton("Filtruj stałe transakcje")
 
         # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku
-        confirm_button.clicked.connect(self.edit_transaction)
+        confirm_button.clicked.connect(self.filter_transaction)
 
         # Dodajemy przycisk do zatwierdzania formularza, do głównego layoutu
         central_layout.addWidget(confirm_button)
 
     # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
-    def edit_transaction(self):
-        # Wyciągamy z wartość tekstową, z pól formularza, przy pomocy metody text()
-        try:
-            amount = float(self.amount_input.text())
-        except ValueError:
-            QMessageBox.information(self, "Błąd", "Podaj poprawną kwotę transakcji",)
-            return
-        type = self.type_input.currentText()
-        category = self.category_input.text()
+    def filter_transaction(self):
+        # Zamieniamy dane z formularza na tekst
+        self.type = self.type_input.currentText()
+
+        self.category = self.category_input.text() or None
 
         # Zmieniamy język zmiennej "type" na j.ang
-        type = "expense" if type == "Wydatek" else "income"
-
-        # Zamieniamy kwotę transakcji na ujemną, jeśli jest ona wydatkiem
-        if type == "expense":
-            amount = 0 - amount
-
-        # Zapisujemy transakcję korzystając z funkcji klasy Finance
-        self.finance.edit_transaction(self.id, amount,  str(datetime.date.today()), type, category)
+        self.type = "expense" if self.type == "Wydatek" else "income"
 
         # Akceptujemy prawidłowe zakończenie, dodawania danych z formularza
         self.accept()

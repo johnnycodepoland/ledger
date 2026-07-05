@@ -30,7 +30,7 @@ class AddStandingOrderDialog(QDialog):
         # Ustawiamy nazwę dla placeholderu, do przyjmowania kwoty transakcji
         self.day_input.setPlaceholderText("Dzień miesiąca (1-31)")
 
-        # Dodajemy widget do wprowadzania kwoty
+        # Dodajemy widget do wprowadzania dnia, do głównego layoutu
         central_layout.addWidget(self.day_input)
 
         # Tworzymy obiekt QComboBox, który pozwoli nam wybierać elementy z rozwijanej listy

@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTableWidget, QAbstractItemView, QHeaderView, QTableWidgetItem
 from gui.tranasactions.edit_transaction_dialog import EditTransactionDialog
-from gui.tranasactions.filter_transaction_dialog import FilterTransactionDialog
+from gui.tranasactions.filter_transactions_dialog import FilterTransactionsDialog
 
 class TransactionHistory(QWidget):
     def __init__(self, finance):
@@ -113,7 +113,7 @@ class TransactionHistory(QWidget):
 
     def open_filter_dialog(self):
         # Inicjalizujemy klasę FilterTransactionHistory
-        filter = FilterTransactionDialog()
+        filter = FilterTransactionsDialog()
 
         # Sprawdzamy, czy formularz został zaakceptowany, korzystając z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokując przy tym korzystanie z wszystkich innych okien aplikacji
         if filter.exec() == QDialog.DialogCode.Accepted:
