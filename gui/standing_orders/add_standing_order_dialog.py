@@ -70,6 +70,9 @@ class AddStandingOrderDialog(QDialog):
         except ValueError:
             QMessageBox.information(self, "Błąd", "Podaj poprawną kwotę stałej transakcji",)
             return
+        if not self.day_input.text():
+            QMessageBox.information(self, "Błąd", "Podaj dzień miesiąca")
+            return
         try:
             day = int(self.day_input.text())
             if day < 1 or day > 31:
