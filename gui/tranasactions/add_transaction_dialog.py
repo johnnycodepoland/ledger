@@ -57,6 +57,9 @@ class AddTransactionDialog(QDialog):
         # Dodajemy przycisk do zatwierdzania formularza, do głównego layoutu
         central_layout.addWidget(confirm_button)
 
+        # Wczytujemy od razy kategorie dla przychodów, aby dodawanie zajmowało mniej czasu
+        self.update_categories()
+
     # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Dodaj transakcję"
     def add_transaction(self):
         # Wyciągamy z wartość tekstową, z pól formularza, przy pomocy metody text()
