@@ -7,6 +7,9 @@ from gui.tranasactions.transaction_history import TransactionHistory
 from gui.charts import Charts
 from finance.recurring import Recurring
 from gui.standing_orders.add_standing_order_dialog import AddStandingOrderDialog
+from finance.savings import Savings
+from gui.savings_goals.savings_goals import SavingsGoals
+from gui.savings_goals.add_savings_goal_dialog import AddSavingsGoalDialog
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -18,6 +21,9 @@ class MainWindow(QMainWindow):
 
         # Inicjalizujemy klasę recurring
         self.recurring = Recurring()
+
+        # Inicjalizujemy klasę savings
+        self.savings = Savings()
 
         # Sprawdzamy, czy jakieś stałe transakcje mają dziś miejsce
         self.recurring.process_recurring_transaction()
@@ -144,6 +150,40 @@ class MainWindow(QMainWindow):
 
         self.so_filter_button.setVisible(False)
 
+        # Dodajemy przycisk "Dodaj transakcje" dla celów osczędnościowych
+        self.sg_add_button = QPushButton("Dodaj cel oszczędnościowy")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.sg_add_button.clicked.connect(self.on_sg_add_clicked)
+
+        # Dodajemy przycisk "Dodaj transakcje" dla celów osczędnościowych do layoutu na zakładki
+        self.tab_layout.addWidget(self.sg_add_button)
+
+        # Dodajemy przycisk "Edytuj transakcję" dla celów osczędnościowych
+        self.sg_edit_button = QPushButton("Edytuj cel osczędnościowy")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.sg_edit_button.clicked.connect(self.on_sg_edit_clicked)
+
+        # Dodajemy edit_button dla celów osczędnościowych do layoutu na zakładki
+        self.tab_layout.addWidget(self.sg_edit_button)
+
+        # Dodajemy przycisk "Usuń transakcję" dla celów osczędnościowych
+        self.sg_delete_button = QPushButton("Usuń cel osczędnościowy")
+
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        self.sg_delete_button.clicked.connect(self.on_sg_delete_clicked)
+
+        # Dodajemy delete_button do layoutu dla celów osczędnościowych na zakładki
+        self.tab_layout.addWidget(self.sg_delete_button)
+
+        # Ustawiamy widoczność przycisków "Dodaj cel osczędnościowy", "Usuń cel osczędnościowy" i "Edytuj cel osczędnościowy" dla celów osczędnościowych na False
+        self.sg_add_button.setVisible(False)
+
+        self.sg_edit_button.setVisible(False)
+
+        self.sg_delete_button.setVisible(False)
+
         # Przesuwamy przycisk na maksa w lewo
         self.tab_layout.addStretch()
 
@@ -177,7 +217,10 @@ class MainWindow(QMainWindow):
         # Dodajemy przycisk "Oszczędności"
         savings_button = QPushButton("Oszczędności")
 
-        # Dodajemy report_button do layoutu na zakładki
+        # Korzystamy z funkcji clicked, która wykonuje konkretną funkcję po kliknięciu danego przycisku, korzystamy z niej jako referencji, czyli informujemy program o tym, że ma się ona wykonać dopiero wtedy, kiedy zostanie spełniony jakiś warunek
+        savings_button.clicked.connect(self.show_savings_goals)
+
+        # Dodajemy savings_button do layoutu na zakładki
         self.tab_layout.addWidget(savings_button)
 
         # Ustawiamy maksymalną wielkość dla widgetu, tab_widget
@@ -394,7 +437,7 @@ class MainWindow(QMainWindow):
     # Ta funkcji pozwoli nam uniknąć otwierania okna dodawania transakcji za każdym razem po włączeniu programu
     def open_add_transaction_dialog(self):
         # Inicjalizujemy klasę AddTransactionDialog
-        add = AddTransactionDialog(self.finance)
+        add = AddTransactionDialog(self.finance, self.savings)
 
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         add.exec()
@@ -417,6 +460,9 @@ class MainWindow(QMainWindow):
         elif self.current_tab == "Standing Orders":
             # Ustawiamy widoczność self.standing_orders na False
             self.standing_orders.setVisible(False)
+        elif self.current_tab == "Savings Goals":
+            # Ustawiamy widoczność self.savings_goals na False
+            self.savings_goals.setVisible(False)
 
         # Ustawiamy widoczność widgetu na treść i przycisku "Dodaj transakcje" na True
         self.content_widget.setVisible(True)
@@ -439,6 +485,13 @@ class MainWindow(QMainWindow):
 
         self.so_filter_button.setVisible(False)
 
+        # Ustawiamy widoczność przycisków "Dodaj cel osczędnościowy", "Usuń cel osczędnościowy" i "Edytuj cel osczędnościowy" dla celów osczędnościowych na False
+        self.sg_add_button.setVisible(False)
+
+        self.sg_edit_button.setVisible(False)
+
+        self.sg_delete_button.setVisible(False)
+
         # Odświeżamy dashboard
         self.refresh_dashboard()
 
@@ -451,6 +504,8 @@ class MainWindow(QMainWindow):
             return
         elif self.current_tab == "Standing Orders":
             self.standing_orders.setVisible(False)
+        elif self.current_tab == "Savings Goals":
+            self.savings_goals.setVisible(False)
 
         # Ustawiamy widoczność widgetu na treść na False
         self.content_widget.setVisible(False)
@@ -490,12 +545,22 @@ class MainWindow(QMainWindow):
 
         self.so_filter_button.setVisible(False)
 
+        # Ustawiamy widoczność przycisków "Dodaj cel osczędnościowy", "Usuń cel osczędnościowy" i "Edytuj cel osczędnościowy" dla celów osczędnościowych na False
+        self.sg_add_button.setVisible(False)
+
+        self.sg_edit_button.setVisible(False)
+
+        self.sg_delete_button.setVisible(False)
+
+
     # Ta funkcja ukryje nam wszystkie widgety z dashboardu i zainicjalizuje klasę StandingOrders
     def show_standing_orders(self):
         if self.current_tab == "Standing Orders":
             return
         elif self.current_tab == "Transactions":
             self.history.setVisible(False)
+        elif self.current_tab == "Savings Goals":
+            self.savings_goals.setVisible(False)
 
         # Ustawiamy widoczność widgetu na treść na False
         self.content_widget.setVisible(False)
@@ -530,6 +595,67 @@ class MainWindow(QMainWindow):
         self.so_delete_button.setVisible(True)
 
         self.so_filter_button.setVisible(True)
+
+        # Ustawiamy widoczność przycisków "Dodaj cel osczędnościowy", "Usuń cel osczędnościowy" i "Edytuj cel osczędnościowy" dla celów osczędnościowych na False
+        self.sg_add_button.setVisible(False)
+
+        self.sg_edit_button.setVisible(False)
+
+        self.sg_delete_button.setVisible(False)
+
+
+    # Ta funkcja ukryje nam wszystkie widgety z dashboardu i zainicjalizuje klasę StandingOrders
+    def show_savings_goals(self):
+        if self.current_tab == "Savings Goals":
+            return
+        elif self.current_tab == "Standing Orders":
+            self.standing_orders.setVisible(False)
+        elif self.current_tab == "Transactions":
+            self.history.setVisible(False)
+
+        # Ustawiamy widoczność widgetu na treść na False
+        self.content_widget.setVisible(False)
+
+        # Sprawdzamy, czy obiekt savings_goals już istnieje przy pomocy wbudowanej w PyQt6 funkcji hasattr
+        if hasattr(self, "savings_goals"):
+            # Jeżeli istnieje zmieniamy tylko jego widoczność
+            self.savings_goals.setVisible(True)
+
+            # Odświerzamy zakładke z celami osczędnościowymi
+            self.savings_goals.refresh_savings_goals_table()
+        else:
+            # A jeżeli nie istnieje, to tworzymy go inicjalizując klasę SavingsGoals
+            self.savings_goals = SavingsGoals(self.savings)
+
+            # Dodajemy klasę savings_goals, do głównego layoutu
+            self.layout.addWidget(self.savings_goals)
+
+        self.current_tab = "Savings Goals"
+
+        # Ustawiamy widoczność standardowego przycisku "Dodaj transakcję", "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" na False
+        self.add_button.setVisible(False)
+
+        self.edit_button.setVisible(False)
+
+        self.delete_button.setVisible(False)
+
+        self.filter_button.setVisible(False)
+
+        # Ustawiamy widoczność przycisków "Usuń transakcje", "Edytuj transakcje" i "Filtruj transakcje" dla cyklicznych transakcji na False
+        self.so_add_button.setVisible(False)
+
+        self.so_edit_button.setVisible(False)
+
+        self.so_delete_button.setVisible(False)
+
+        self.so_filter_button.setVisible(False)
+
+        # Ustawiamy widoczność przycisków "Dodaj transakcje", "Edytuj transakcje" i "Usuń transakcje" dla celów oszczędnościowych na True
+        self.sg_add_button.setVisible(True)
+
+        self.sg_edit_button.setVisible(True)
+
+        self.sg_delete_button.setVisible(True)
 
     # Ta funkcji usunie nam wybraną transakcję, tylko jeśli będziemy znajdować się w oknie "Transactions"
     def on_delete_clicked(self):
@@ -577,9 +703,6 @@ class MainWindow(QMainWindow):
         # Wywołujemy usunięcie stałej transakcji
         self.standing_orders.delete_standing_order()
 
-        # Odświeżamy tabele na stałe transakcje
-        self.standing_orders.refresh_standing_orders_table()
-
     def on_so_edit_clicked(self):
         if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
             return
@@ -587,15 +710,31 @@ class MainWindow(QMainWindow):
         # Wywołujemy okno edycji stałej transakcji
         self.standing_orders.open_edit_dialog()
 
-        # Odświeżamy tabele na stałe transakcje
-        self.standing_orders.refresh_standing_orders_table()
-
     def on_so_filter_clicked(self):
         if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
             return
 
         # Wywołujemy okno filtracji stałych transakcji
         self.standing_orders.open_filter_dialog()
+
+    # Ta funkcji pozwoli nam uniknąć otwierania okna dodawania celu oszczędnościowego za każdym razem po włączeniu programu, korzystamy od razu z klasy AddSavingsGoalDialog, bez integracji z klasą SavingsGoals
+    def on_sg_add_clicked(self):
+        # Inicjalizujemy klasę AddSavingsGoalDialog
+        sg_add = AddSavingsGoalDialog(self.savings)
+
+        # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
+        sg_add.exec()
+
+        # Odświeżamy tabele na cele osczędnościowe
+        self.savings_goals.refresh_savings_goals_table()
+
+    def on_sg_edit_clicked(self):
+        # Wywołujemy okno edycji celu osczędnościowego
+        self.savings_goals.open_edit_dialog()
+
+    def on_sg_delete_clicked(self):
+        # Wywołujemy usunięcie celu osczędnościowego
+        self.savings_goals.delete_savings_goal()
 
     # Tworzymy funkcje do odświeżania dashboardu
     def refresh_dashboard(self):

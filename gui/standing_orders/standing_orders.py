@@ -3,12 +3,12 @@ from gui.standing_orders.edit_standing_order_dialog import EditStandingOrderDial
 from gui.standing_orders.filter_standing_orders_dialog import FilterStandingOrdersDialog
 
 class StandingOrders(QWidget):
-    def __init__(self, Recurring):
+    def __init__(self, recurring):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
-        # Inicjalizujemy klasę finance
-        self.recurring = Recurring
+        # Inicjalizujemy klasę recurring
+        self.recurring = recurring
 
         # Ustawiamy pionowy layout
         self.central_layout = QVBoxLayout(self)
@@ -105,35 +105,35 @@ class StandingOrders(QWidget):
         # Inicjalizujemy klasę EditStandingOrderDialog
         edit = EditStandingOrderDialog(id, self.recurring)
 
-        # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
+        # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz edycji stałej transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         edit.exec()
 
-        # Odświeżamy tabele z historią transakcji
+        # Odświeżamy tabele z historią stałych transakcji
         self.refresh_standing_orders_table()
 
     def open_filter_dialog(self):
         # Inicjalizujemy klasę FilterTransactionDialog
         filter = FilterStandingOrdersDialog()
 
-        # Sprawdzamy, czy formularz został zaakceptowany, korzystając z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokując przy tym korzystanie z wszystkich innych okien aplikacji
+        # Sprawdzamy, czy formularz został zaakceptowany, korzystając z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania stałej transakcji, blokując przy tym korzystanie z wszystkich innych okien aplikacji
         if filter.exec() == QDialog.DialogCode.Accepted:
-            # Zapisujemy dane z formularza do zmiennych, które zostaną wykorzystane przez refresh_history_table
+            # Zapisujemy dane z formularza do zmiennych, które zostaną wykorzystane przez refresh_standing_orders_table
             type = filter.type
 
             category = filter.category
 
-            # Odświeżamy tabele z historią transakcji
+            # Odświeżamy tabele z historią stałych transakcji
             self.refresh_standing_orders_table(type, category)
 
-    # Dodajemy funkcję, która odświeży nam historię transakcji po jakiejś aktywności np. usunięciu transakcji
+    # Dodajemy funkcję, która odświeży nam historię transakcji po jakiejś aktywności np. usunięciu stałej transakcji
     def refresh_standing_orders_table(self, type=None, category=None):
         # Resetujemy liczbę wierszy
         self.standing_orders_table.setRowCount(0)
 
-        # Importujemy wszystkie transakcje, korzystając z funkcji show_history()
+        # Importujemy wszystkie stałę transakcje, korzystając z funkcji show_history()
         transactions = self.recurring.show_recurring_history(type=type, category=category)
 
-        # Iterujemy przez wszystkie transakcje, aby dodać je do tabeli z ostatnimi transakcjami
+        # Iterujemy przez wszystkie stałe transakcje, aby dodać je do tabeli z ostatnimi stałymi transakcjami
         for transaction in transactions:
             row = self.standing_orders_table.rowCount()
             self.standing_orders_table.insertRow(row)
