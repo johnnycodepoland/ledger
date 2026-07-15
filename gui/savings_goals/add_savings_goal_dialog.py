@@ -62,11 +62,17 @@ class AddSavingsGoalDialog(QDialog):
             return
         name = self.name_input.text()
         try:
-            datetime.datetime.strptime(self.target_date_input.text(), "%Y-%m-%d")
+            # Próbujemy zapisać string self.target_date_input.text() do zmiennej date, konwertując go na obiekt datetime
+            date = datetime.datetime.strptime(self.target_date_input.text(), "%Y-%m-%d").date()
         except ValueError:
             QMessageBox.information(self, "Błąd", "Podaj datę w formacie YYYY-MM-DD")
             return
-        date = self.target_date_input.text()
+
+        # Sprawdzamy czy podana data jest starsza od dzisiejszej
+        if date < datetime.date.today():
+            QMessageBox.information(self, "Błąd", "Podana data jest starsza od dzisiejszej", )
+            date = None
+            return
 
         # Zapisujemy cel osczędnościowy korzystając z funkcji klasy Savings
         self.savings.add_savings_goal(target_amount, 0, name, date)
