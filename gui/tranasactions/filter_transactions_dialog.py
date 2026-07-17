@@ -44,6 +44,9 @@ class FilterTransactionsDialog(QDialog):
         # Dodajemy przycisk do zatwierdzania formularza, do głównego layoutu
         central_layout.addWidget(confirm_button)
 
+        # Wczytujemy od razy kategorie dla przychodów, aby dodawanie zajmowało mniej czasu
+        self.update_categories()
+
     # Tworzymy funkcję, która zapisze nam typ i kategorie transakcji jako text i zaakceptuje prawidłowe dodawanie danych z formularza
     def filter_transaction(self):
         # Zamieniamy dane z formularza na tekst

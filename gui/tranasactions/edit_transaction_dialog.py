@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox,
 
 class EditTransactionDialog(QDialog):
     # Dodatkowo przekazujemy obiekt finance, aby wykorzystać go potem do zapisania dodanej transakcji w bazie danych
-    def __init__(self, id, finance):
+    def __init__(self, id, finance, savings):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
@@ -12,6 +12,9 @@ class EditTransactionDialog(QDialog):
 
         # Inicjalizujemy klasę finance
         self.finance = finance
+
+        # Inicjalizujemy klasę savings
+        self.savings = savings
 
         # Ustawiamy tytuł okna formularza
         self.setWindowTitle("Edytuj transakcje")
@@ -45,8 +48,14 @@ class EditTransactionDialog(QDialog):
         # Dajemy użytkownikowi wybór, dostępnych kategorii, w zależności od typu transakcji, currentIndexChanged daje nam sygnał za każdym razem, gdy mamy doczynienie ze zmianą typu transakcji
         self.type_input.currentIndexChanged.connect(self.update_categories)
 
-        # Dodajemy widget do wprowadzania kategorii
+        # Dodajemy widget do wyboru kategorii
         central_layout.addWidget(self.category_input)
+
+        # Tworzymy obiekt QComboBox, który pozwoli nam wybierać elementy z rozwijanej listy
+        self.currency_input = QComboBox()
+
+        # Dodajemy widget do wyboru waluty
+        central_layout.addWidget(self.currency_input)
 
         # Dodajemy przycisk do zatwierdzania formularza
         confirm_button = QPushButton("Edytuj transakcje")
@@ -56,6 +65,12 @@ class EditTransactionDialog(QDialog):
 
         # Dodajemy przycisk do zatwierdzania formularza, do głównego layoutu
         central_layout.addWidget(confirm_button)
+
+        # Wczytujemy od razy kategorie dla przychodów, aby dodawanie zajmowało mniej czasu
+        self.update_categories()
+
+        # Wczytujemy dostępne waluty
+        self.update_currencies()
 
     # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
     def edit_transaction(self):
@@ -74,6 +89,26 @@ class EditTransactionDialog(QDialog):
         # Zamieniamy kwotę transakcji na ujemną, jeśli jest ona wydatkiem
         if type == "expense":
             amount = 0 - amount
+
+        # Pobieramy cele osczędnościowe poprzez klasę Savings, korzystając z funkcji savings.show_savings_goals_history()
+        savings_goals = self.savings.show_savings_goals_history()
+
+        # Iterujemy przez wszystkie cele osczędnościowe
+        for savings_goal in savings_goals:
+            # Porównujemy kategorie celu osczędnościowego z kategorią którą właśnie zapisujemy
+            if savings_goal[3] == category:
+                # Sprawdzamy typ transakcji
+                if type == "expense":
+                    # Jeżeli typ transakcji to wydatek, to dodajemy wartość bezwzględną tej kwoty
+                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] + abs(amount))
+                else:
+                    # Sprawdzamy czy po wykonaniu transakcji, saldo nie będzie ujemne
+                    if savings_goal[2] - abs(amount) < 0:
+                        QMessageBox.information(self, "Błąd", "Nie możesz wypłacić więcej niż odłożyłeś")
+                        return
+
+                    # Jeżeli typ transakcji to przychód, to odejmujemy wartość bezwzględną tej kwoty
+                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] - abs(amount))
 
         # Zapisujemy transakcję korzystając z funkcji klasy Finance
         self.finance.edit_transaction(self.id, amount,  str(datetime.date.today()), type, category)
@@ -111,6 +146,17 @@ class EditTransactionDialog(QDialog):
 
             self.category_input.addItem("💸 Inne wydatki")
 
+            # Pobieramy cele osczędnościowe poprzez klasę Savings, korzystając z funkcji savings.show_savings_goals_history()
+            savings_goals = self.savings.show_savings_goals_history()
+
+            # Iterujemy przez wszystkie cele osczędnościowe
+            for savings_goal in savings_goals:
+                # Zapisujemy nazwę celu do zmiennej name
+                name = savings_goal[3]
+
+                # Dodajemy name do kategorii transakcji
+                self.category_input.addItem(name)
+
         elif self.type_input.currentText() == "Przychód":
             # Czyścimy dostępne opcje
             self.category_input.clear()
@@ -127,4 +173,27 @@ class EditTransactionDialog(QDialog):
             self.category_input.addItem("🔄 Zwrot")
 
             self.category_input.addItem("💰 Inne przychody")
+
+            # Pobieramy cele osczędnościowe poprzez klasę Savings, korzystając z funkcji savings.show_savings_goals_history()
+            savings_goals = self.savings.show_savings_goals_history()
+
+            # Iterujemy przez wszystkie cele osczędnościowe
+            for savings_goal in savings_goals:
+                # Zapisujemy nazwę celu do zmiennej name
+                name = savings_goal[3]
+
+                # Dodajemy name do kategorii transakcji
+                self.category_input.addItem(name)
+
+    def update_currencies(self):
+        # Pobieramy waluty poprzez klasę Finance, korzystając z funkcji finance.get_currencies()
+        currencies = self.finance.get_currencies()
+
+        # Iterujemy przez wszystkie cele osczędnościowe
+        for currency in currencies:
+            # Zapisujemy nazwę celu do zmiennej name
+            currency_code = currency[0]
+
+            # Dodajemy name do kategorii transakcji
+            self.currency_input.addItem(currency_code)
 

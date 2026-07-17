@@ -3,12 +3,15 @@ from gui.tranasactions.edit_transaction_dialog import EditTransactionDialog
 from gui.tranasactions.filter_transactions_dialog import FilterTransactionsDialog
 
 class TransactionHistory(QWidget):
-    def __init__(self, finance):
+    def __init__(self, finance, savings):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
         # Inicjalizujemy klasę finance
         self.finance = finance
+
+        # Inicjalizujemy klasę savings
+        self.savings = savings
 
         # Ustawiamy pionowy layout
         self.central_layout = QVBoxLayout(self)
@@ -82,6 +85,26 @@ class TransactionHistory(QWidget):
         # Zamieniamy string "id" na int
         id = int(id)
 
+        # Pobieramy cele osczędnościowe poprzez klasę Savings, korzystając z funkcji savings.show_savings_goals_history()
+        savings_goals = self.savings.show_savings_goals_history()
+
+        # Iterujemy przez wszystkie cele osczędnościowe
+        for savings_goal in savings_goals:
+            # Porównujemy kategorie celu osczędnościowego z kategorią którą właśnie zapisujemy
+            if savings_goal[3] == category:
+                # Sprawdzamy typ transakcji
+                if type == "expense":
+                    # Jeżeli typ transakcji to wydatek, to dodajemy wartość bezwzględną tej kwoty
+                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] + abs(amount))
+                else:
+                    # Sprawdzamy czy po wykonaniu transakcji, saldo nie będzie ujemne
+                    if savings_goal[2] - abs(amount) < 0:
+                        QMessageBox.information(self, "Błąd", "Nie możesz wypłacić więcej niż odłożyłeś")
+                        return
+
+                    # Jeżeli typ transakcji to przychód, to odejmujemy wartość bezwzględną tej kwoty
+                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] - abs(amount))
+
         # Usuwamy daną transakcję
         self.finance.delete_transaction(id)
 
@@ -103,7 +126,7 @@ class TransactionHistory(QWidget):
         id = int(id)
 
         # Inicjalizujemy klasę EditTransactionHistory
-        edit = EditTransactionDialog(id, self.finance)
+        edit = EditTransactionDialog(id, self.finance, self.savings)
 
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         edit.exec()

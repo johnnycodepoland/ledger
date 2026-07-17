@@ -45,8 +45,14 @@ class AddTransactionDialog(QDialog):
         # Dajemy użytkownikowi wybór, dostępnych kategorii, w zależności od typu transakcji, currentIndexChanged daje nam sygnał za każdym razem, gdy mamy doczynienie ze zmianą typu transakcji
         self.type_input.currentIndexChanged.connect(self.update_categories)
 
-        # Dodajemy widget do wprowadzania kategorii
+        # Dodajemy widget do wyboru kategorii
         central_layout.addWidget(self.category_input)
+
+        # Tworzymy obiekt QComboBox, który pozwoli nam wybierać elementy z rozwijanej listy
+        self.currency_input = QComboBox()
+
+        # Dodajemy widget do wyboru waluty
+        central_layout.addWidget(self.currency_input)
 
         # Dodajemy przycisk do zatwierdzania formularza
         confirm_button = QPushButton("Dodaj transakcje")
@@ -59,6 +65,9 @@ class AddTransactionDialog(QDialog):
 
         # Wczytujemy od razy kategorie dla przychodów, aby dodawanie zajmowało mniej czasu
         self.update_categories()
+
+        # Wczytujemy dostępne waluty
+        self.update_currencies()
 
     # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Dodaj transakcję"
     def add_transaction(self):
@@ -172,4 +181,16 @@ class AddTransactionDialog(QDialog):
 
                 # Dodajemy name do kategorii transakcji
                 self.category_input.addItem(name)
+
+    def update_currencies(self):
+        # Pobieramy waluty poprzez klasę Finance, korzystając z funkcji finance.get_currencies()
+        currencies = self.finance.get_currencies()
+
+        # Iterujemy przez wszystkie cele osczędnościowe
+        for currency in currencies:
+            # Zapisujemy nazwę celu do zmiennej name
+            currency_code = currency[0]
+
+            # Dodajemy name do kategorii transakcji
+            self.currency_input.addItem(currency_code)
 

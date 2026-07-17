@@ -11,15 +11,45 @@ class Finance:
         # Tworzymy cursor
         self.cursor = self.connection.cursor()
 
-        # Tworzymy bazę danych
+        # Tworzymy bazę danych na transakcje
         self.cursor.execute("""
             CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY,
             amount REAl,
             date TEXT,
             type TEXT,
-            category TEXT)
+            category TEXT,
+            currency_code TEXT,
+            exchange_rate REAL)
             """)
+
+        # Tworzymy bazę danych na waluty
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS currencies (
+            currency_code TEXT PRIMARY KEY,
+            exchange_rate REAL)
+            """)
+
+        # Dodajemy podstawowe waluty
+        self.initialize_currencies()
+
+    # Funkcja dodająca podstawowe waluty
+    def initialize_currencies(self):
+        # Dodajemy walutę, tylko jeśli nie istnieje
+        self.cursor.execute(
+            """INSERT OR IGNORE INTO currencies (currency_code, exchange_rate) VALUES (?, ?)""",
+            ("PLN", 1.0)
+        )
+        self.cursor.execute(
+            """INSERT OR IGNORE INTO currencies (currency_code, exchange_rate) VALUES (?, ?)""",
+            ("EUR", 4.32)
+        )
+        self.cursor.execute(
+            """INSERT OR IGNORE INTO currencies (currency_code, exchange_rate) VALUES (?, ?)""",
+            ("USD", 3.79)
+        )
+        # Zapisujemy zmiany i kończymy połączenie
+        self.connection.commit()
 
     # Funkcja dodająca transakcje
     def add_transaction(self, amount, date, type, category):
@@ -114,6 +144,17 @@ class Finance:
             )
         transactions = self.cursor.fetchall()
         return transactions
+
+    # Funkcja wypisująca wszystkie kody walut
+    def get_currencies(self):
+        # Wybieramy wszystko z kolumny currency_code
+        self.cursor.execute("SELECT currency_code FROM currencies")
+        # Wysuwamy PLN na samą górę
+        self.cursor.execute(
+            """SELECT currency_code FROM currencies ORDER BY currency_code = 'PLN' DESC"""
+        )
+        # Zwracamy kody walut
+        return self.cursor.fetchall()
 
     # Funkcja umożliwiająca edycję transakcji
     def edit_transaction(self, id, amount=None, date=None, type=None, category=None):

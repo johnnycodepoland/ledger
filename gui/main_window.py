@@ -516,7 +516,7 @@ class MainWindow(QMainWindow):
             self.history.setVisible(True)
         else:
             # Inicjalizujemy klasę TransactionHistory
-            self.history = TransactionHistory(self.finance)
+            self.history = TransactionHistory(self.finance, self.savings)
 
             # Dodajemy klasę history, do głównego layoutu
             self.layout.addWidget(self.history)
