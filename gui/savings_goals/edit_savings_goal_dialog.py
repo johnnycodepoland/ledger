@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox,
 
 class EditSavingsGoalDialog(QDialog):
     # Dodatkowo przekazujemy obiekt Finance, aby wykorzystać ją potem do zapisania dodanej transakcji w bazie danych
-    def __init__(self, id, savings):
+    def __init__(self, id, savings, savings_goals):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
@@ -12,6 +12,9 @@ class EditSavingsGoalDialog(QDialog):
 
         # Inicjalizujemy klasę savings
         self.savings = savings
+
+        # Inicjalizujemy klasę savings_goals
+        self.savings_goals = savings_goals
 
         # Ustawiamy tytuł okna formularza
         self.setWindowTitle("Edytuj cel osczędnościowy")
@@ -71,8 +74,17 @@ class EditSavingsGoalDialog(QDialog):
             return
         date = self.target_date_input.text()
 
+        # Sprawdzamy numer aktualnie zaznaczonego wiersza
+        current_row = self.savings_goals.savings_goals_table.currentRow()
+
+        # Wyciągamy saved_amount z wybranego rzędu
+        saved_amount = self.savings_goals.savings_goals_table.item(current_row, 2).text()
+
+        # Zamieniamy string "saved_amount" na float
+        saved_amount = float(saved_amount)
+
         # Zapisujemy cel osczędnościowy korzystając z funkcji klasy Savings
-        self.savings.edit_savings_goal(self.id, target_amount, 0, name, date)
+        self.savings.edit_savings_goal(self.id, target_amount, saved_amount, name, date)
 
         # Akceptujemy prawidłowe zakończenie, dodawania danych z formularza
         self.accept()

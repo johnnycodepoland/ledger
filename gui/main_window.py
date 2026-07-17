@@ -625,7 +625,7 @@ class MainWindow(QMainWindow):
             self.savings_goals.refresh_savings_goals_table()
         else:
             # A jeżeli nie istnieje, to tworzymy go inicjalizując klasę SavingsGoals
-            self.savings_goals = SavingsGoals(self.savings)
+            self.savings_goals = SavingsGoals(self.savings, self.finance)
 
             # Dodajemy klasę savings_goals, do głównego layoutu
             self.layout.addWidget(self.savings_goals)

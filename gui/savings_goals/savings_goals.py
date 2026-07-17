@@ -1,13 +1,17 @@
+import datetime
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QTableWidget, QAbstractItemView, QHeaderView, QTableWidgetItem
-from gui.savings_goals.edit_savings_goal_dialog import EditSavingsGoalDialog
+from gui.savings_goals.edit_savings_goal_dialog import EditSavingsGoalDialog\
 
 class SavingsGoals(QWidget):
-    def __init__(self, savings):
+    def __init__(self, savings, finance):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
-        # Inicjalizujemy klasę finance
+        # Inicjalizujemy klasę savings
         self.savings = savings
+
+        # Inicjalizujemy klasę finance
+        self.finance = finance
 
         # Ustawiamy pionowy layout
         self.central_layout = QVBoxLayout(self)
@@ -81,6 +85,17 @@ class SavingsGoals(QWidget):
         # Zamieniamy string "id" na int
         id = int(id)
 
+        # Wyciągamy saved_amount z wybranego rzędu
+        saved_amount = self.savings_goals_table.item(current_row, 2).text()
+
+        # Zamieniamy string "saved_amount" na float
+        saved_amount = float(saved_amount)
+
+        # Wyciągamy name z wybranego rzędu
+        name = self.savings_goals_table.item(current_row, 3).text()
+
+        self.finance.add_transaction(saved_amount, str(datetime.date.today()), "income", name)
+
         # Usuwamy dany cel osczędnościowy
         self.savings.delete_savings_goal(id)
 
@@ -102,7 +117,7 @@ class SavingsGoals(QWidget):
         id = int(id)
 
         # Inicjalizujemy klasę EditStandingOrderDialog
-        edit = EditSavingsGoalDialog(id, self.savings)
+        edit = EditSavingsGoalDialog(id, self.savings, self)
 
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz edycji celu osczędnościowego, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         edit.exec()
