@@ -7,10 +7,10 @@ class SavingsGoals(QWidget):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
-        # Inicjalizujemy klasę savings
+        # Inicjalizujemy klasę Savings
         self.savings = savings
 
-        # Inicjalizujemy klasę finance
+        # Inicjalizujemy klasę Finance
         self.finance = finance
 
         # Ustawiamy pionowy layout
@@ -50,7 +50,7 @@ class SavingsGoals(QWidget):
             self.savings_goals_table.insertRow(row)
             self.savings_goals_table.setItem(row, 0, QTableWidgetItem(str(savings_goal[0])))
             target_amount = abs(savings_goal[1])
-            self.savings_goals_table.setItem(row, 1, QTableWidgetItem(str(target_amount)))
+            self.savings_goals_table.setItem(row, 1, QTableWidgetItem(f"{target_amount:.1f} zł"))
             saved_amount = str(savings_goal[2])
             self.savings_goals_table.setItem(row, 2, QTableWidgetItem(str(saved_amount)))
             self.savings_goals_table.setItem(row, 3, QTableWidgetItem(str(savings_goal[3])))
@@ -94,7 +94,8 @@ class SavingsGoals(QWidget):
         # Wyciągamy name z wybranego rzędu
         name = self.savings_goals_table.item(current_row, 3).text()
 
-        self.finance.add_transaction(saved_amount, str(datetime.date.today()), "income", name)
+        # Dodajemy transakcję która, zwraca nam pieniądze z celu osczędnościowego do głównego balansu
+        self.finance.add_transaction(saved_amount, str(datetime.date.today()), "income", name, "PLN", 1)
 
         # Usuwamy dany cel osczędnościowy
         self.savings.delete_savings_goal(id)
@@ -139,7 +140,7 @@ class SavingsGoals(QWidget):
             self.savings_goals_table.insertRow(row)
             self.savings_goals_table.setItem(row, 0, QTableWidgetItem(str(savings_goal[0])))
             target_amount = abs(savings_goal[1])
-            self.savings_goals_table.setItem(row, 1, QTableWidgetItem(str(target_amount)))
+            self.savings_goals_table.setItem(row, 1, QTableWidgetItem(f"{target_amount:.1f} zł"))
             saved_amount = str(savings_goal[2])
             self.savings_goals_table.setItem(row, 2, QTableWidgetItem(str(saved_amount)))
             self.savings_goals_table.setItem(row, 3, QTableWidgetItem(str(savings_goal[3])))

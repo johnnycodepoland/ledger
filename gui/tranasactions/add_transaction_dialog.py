@@ -2,15 +2,14 @@ import datetime
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QMessageBox
 
 class AddTransactionDialog(QDialog):
-    # Dodatkowo przekazujemy obiekt finance, aby wykorzystać go potem do zapisania dodanej transakcji w bazie danych
     def __init__(self, finance, savings):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
-        # Inicjalizujemy klasę finance
+        # Inicjalizujemy klasę Finance
         self.finance = finance
 
-        # Inicjalizujemy klasę savings
+        # Inicjalizujemy klasę Savings
         self.savings = savings
 
         # Ustawiamy tytuł okna formularza
@@ -87,6 +86,13 @@ class AddTransactionDialog(QDialog):
         if type == "expense":
             amount = 0 - amount
 
+        # Pobieramy kurs waluty, i jego kod, a następnie mnożymy kwotę razy kurs
+        currency_code = self.currency_input.currentText()
+
+        exchange_rate = self.finance.get_exchange_rate(currency_code)
+
+        amount = amount * exchange_rate
+
         # Pobieramy cele osczędnościowe poprzez klasę Savings, korzystając z funkcji savings.show_savings_goals_history()
         savings_goals = self.savings.show_savings_goals_history()
 
@@ -108,7 +114,7 @@ class AddTransactionDialog(QDialog):
                     self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] - abs(amount))
 
         # Zapisujemy transakcję korzystając z funkcji klasy Finance
-        self.finance.add_transaction(amount,  str(datetime.date.today()), type, category)
+        self.finance.add_transaction(amount, str(datetime.date.today()), type, category, currency_code, exchange_rate)
 
         # Akceptujemy prawidłowe zakończenie, dodawania danych z formularza
         self.accept()

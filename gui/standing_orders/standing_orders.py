@@ -3,12 +3,15 @@ from gui.standing_orders.edit_standing_order_dialog import EditStandingOrderDial
 from gui.standing_orders.filter_standing_orders_dialog import FilterStandingOrdersDialog
 
 class StandingOrders(QWidget):
-    def __init__(self, recurring):
+    def __init__(self, recurring, finance):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
-        # Inicjalizujemy klasę recurring
+        # Inicjalizujemy klasę Recurring
         self.recurring = recurring
+
+        # Inicjalizujemy klasę Finance
+        self.finance = finance
 
         # Ustawiamy pionowy layout
         self.central_layout = QVBoxLayout(self)
@@ -33,25 +36,26 @@ class StandingOrders(QWidget):
         standing_orders_container.setStyleSheet("#standing_orders_container {background-color: white; border-radius: 10px; padding: 10px;}")
 
         # Dodajemy tabele do widgetu na stałe transakcje
-        self.standing_orders_table = QTableWidget(0, 5)
+        self.standing_orders_table = QTableWidget(0, 6)
 
         # Blokujemy możliwość edycji komórek w tabeli
         self.standing_orders_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
         # Importujemy wszystkie transakcje, korzystając z funkcji show_history()
-        recurring = self.recurring.show_recurring_history()
+        standing_orders = self.recurring.show_recurring_history()
 
-        # Iterujemy przez wszystkie transakcje, aby dodać je do tabeli ze stałymi transakcjami
-        for order in recurring:
+        # Iterujemy przez wszystkie stałe transakcje, aby dodać je do tabeli z ostatnimi stałymi transakcjami
+        for standing_order in standing_orders:
             row = self.standing_orders_table.rowCount()
             self.standing_orders_table.insertRow(row)
-            self.standing_orders_table.setItem(row, 0, QTableWidgetItem(str(order[0])))
-            amount = abs(order[1])
-            self.standing_orders_table.setItem(row, 1, QTableWidgetItem(str(amount)))
-            self.standing_orders_table.setItem(row, 2, QTableWidgetItem(str(order[2])))
-            type = "wydatek" if order[3] == "expense" else "przychód"
+            self.standing_orders_table.setItem(row, 0, QTableWidgetItem(str(standing_order[0])))
+            amount = abs(standing_order[1])
+            self.standing_orders_table.setItem(row, 1, QTableWidgetItem(f"{amount:.1f} zł"))
+            self.standing_orders_table.setItem(row, 2, QTableWidgetItem(str(standing_order[2])))
+            type = "wydatek" if standing_order[3] == "expense" else "przychód"
             self.standing_orders_table.setItem(row, 3, QTableWidgetItem(type))
-            self.standing_orders_table.setItem(row, 4, QTableWidgetItem(str(order[4])))
+            self.standing_orders_table.setItem(row, 4, QTableWidgetItem(str(standing_order[4])))
+            self.standing_orders_table.setItem(row, 5, QTableWidgetItem(str(standing_order[6])))
 
         # Ukrywamy kolumnę z ID
         self.standing_orders_table.setColumnHidden(0, True)
@@ -63,7 +67,7 @@ class StandingOrders(QWidget):
         standing_orders_layout.addWidget(self.standing_orders_table)
 
         # Ustawiamy nagłówki / nazwy kolumn dla tabeli history_table
-        self.standing_orders_table.setHorizontalHeaderLabels(["ID", "Kwota", "Dzień miesiąca", "Typ", "Kategoria"])
+        self.standing_orders_table.setHorizontalHeaderLabels(["ID", "Kwota", "Dzień miesiąca", "Typ", "Kategoria", "Waluta"])
 
         # Dodajemy "kontener" na transakcje, do głównego layoutu
         self.central_layout.addWidget(standing_orders_container)
@@ -103,7 +107,7 @@ class StandingOrders(QWidget):
         id = int(id)
 
         # Inicjalizujemy klasę EditStandingOrderDialog
-        edit = EditStandingOrderDialog(id, self.recurring)
+        edit = EditStandingOrderDialog(id, self.recurring, self.finance)
 
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz edycji stałej transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         edit.exec()
@@ -131,16 +135,17 @@ class StandingOrders(QWidget):
         self.standing_orders_table.setRowCount(0)
 
         # Importujemy wszystkie stałę transakcje, korzystając z funkcji show_history()
-        transactions = self.recurring.show_recurring_history(type=type, category=category)
+        standing_orders = self.recurring.show_recurring_history(type=type, category=category)
 
         # Iterujemy przez wszystkie stałe transakcje, aby dodać je do tabeli z ostatnimi stałymi transakcjami
-        for transaction in transactions:
+        for standing_order in standing_orders:
             row = self.standing_orders_table.rowCount()
             self.standing_orders_table.insertRow(row)
-            self.standing_orders_table.setItem(row, 0, QTableWidgetItem(str(transaction[0])))
-            amount = abs(transaction[1])
-            self.standing_orders_table.setItem(row, 1, QTableWidgetItem(str(amount)))
-            self.standing_orders_table.setItem(row, 2, QTableWidgetItem(str(transaction[2])))
-            type = "wydatek" if transaction[3] == "expense" else "przychód"
+            self.standing_orders_table.setItem(row, 0, QTableWidgetItem(str(standing_order[0])))
+            amount = abs(standing_order[1])
+            self.standing_orders_table.setItem(row, 1, QTableWidgetItem(f"{amount:.1f} zł"))
+            self.standing_orders_table.setItem(row, 2, QTableWidgetItem(str(standing_order[2])))
+            type = "wydatek" if standing_order[3] == "expense" else "przychód"
             self.standing_orders_table.setItem(row, 3, QTableWidgetItem(type))
-            self.standing_orders_table.setItem(row, 4, QTableWidgetItem(str(transaction[4])))
+            self.standing_orders_table.setItem(row, 4, QTableWidgetItem(str(standing_order[4])))
+            self.standing_orders_table.setItem(row, 5, QTableWidgetItem(str(standing_order[6])))

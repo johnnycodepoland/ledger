@@ -2,16 +2,18 @@ import datetime
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QMessageBox
 
 class EditStandingOrderDialog(QDialog):
-    # Dodatkowo przekazujemy obiekt recurring, aby wykorzystać go potem do zapisania dodanej transakcji w bazie danych
-    def __init__(self, id, recurring):
+    def __init__(self, id, recurring, finance):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
         # Zapisujemy id jako self. żeby wszystkie funkcje miały do niego dostęp
         self.id = id
 
-        # Inicjalizujemy klasę recurring
+        # Inicjalizujemy klasę Recurring
         self.recurring = recurring
+
+        # Inicjalizujemy klasę Finance
+        self.finance = finance
 
         # Ustawiamy tytuł okna formularza
         self.setWindowTitle("Edytuj stałą transakcje")
@@ -57,6 +59,12 @@ class EditStandingOrderDialog(QDialog):
         # Dodajemy widget do wprowadzania kategorii
         central_layout.addWidget(self.category_input)
 
+        # Tworzymy obiekt QComboBox, który pozwoli nam wybierać elementy z rozwijanej listy
+        self.currency_input = QComboBox()
+
+        # Dodajemy widget do wyboru waluty
+        central_layout.addWidget(self.currency_input)
+
         # Dodajemy przycisk do zatwierdzania formularza
         confirm_button = QPushButton("Edytuj stałą transakcje")
 
@@ -68,6 +76,9 @@ class EditStandingOrderDialog(QDialog):
 
         # Wczytujemy od razy kategorie dla przychodów, aby dodawanie zajmowało mniej czasu
         self.update_categories()
+
+        # Wczytujemy dostępne waluty
+        self.update_currencies()
 
     # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
     def edit_standing_order(self):
@@ -98,8 +109,15 @@ class EditStandingOrderDialog(QDialog):
         if type == "expense":
             amount = 0 - amount
 
+        # Pobieramy kurs waluty, i jego kod, a następnie mnożymy kwotę razy kurs
+        currency_code = self.currency_input.currentText()
+
+        exchange_rate = self.finance.get_exchange_rate(currency_code)
+
+        amount = amount * exchange_rate
+
         # Zapisujemy transakcję korzystając z funkcji klasy Finance
-        self.recurring.edit_recurring_transaction(self.id, amount,  day, type, category)
+        self.recurring.edit_recurring_transaction(self.id, amount,  day, type, category, currency_code, exchange_rate)
 
         # Akceptujemy prawidłowe zakończenie, dodawania danych z formularza
         self.accept()
@@ -150,3 +168,15 @@ class EditStandingOrderDialog(QDialog):
             self.category_input.addItem("🔄 Zwrot")
 
             self.category_input.addItem("💰 Inne przychody")
+
+    def update_currencies(self):
+        # Pobieramy waluty poprzez klasę Finance, korzystając z funkcji finance.get_currencies()
+        currencies = self.finance.get_currencies()
+
+        # Iterujemy przez wszystkie cele osczędnościowe
+        for currency in currencies:
+            # Zapisujemy nazwę celu do zmiennej name
+            currency_code = currency[0]
+
+            # Dodajemy name do kategorii transakcji
+            self.currency_input.addItem(currency_code)

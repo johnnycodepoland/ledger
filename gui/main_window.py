@@ -257,7 +257,7 @@ class MainWindow(QMainWindow):
         self.content_layout.addWidget(top_widget)
 
         # Dodajemy widget na balans
-        self.balance_label = QLabel(f"Saldo: {self.finance.return_balance()}zł")
+        self.balance_label = QLabel(f"Saldo: {round(self.finance.return_balance(), 2)}zł")
 
         # Ustawiamy styl widgetu na balans
         self.balance_label.setStyleSheet("background-color: white; border-radius: 10px; padding: 10px;")
@@ -373,24 +373,25 @@ class MainWindow(QMainWindow):
         table_container.setStyleSheet("#table_container {background-color: white; border-radius: 10px; padding: 10px;}")
 
         # Dodajemy widget na historię transakcji
-        self.history_table = QTableWidget(0, 4)
+        self.history_table = QTableWidget(0, 5)
 
         # Blokujemy możliwość edycji komórek w tabeli
         self.history_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
 
-        # Importujemy wszystkie transakcje, korzystając z funkcji show_history()
-        transactions = self.finance.show_history()
+        # Importujemy ostanie 10 transakcji, korzystając z funkcji show_recent_history()
+        recent_transactions = self.finance.show_recent_history()
 
         # Iterujemy przez wszystkie transakcje, aby dodać je do tabeli z ostatnimi transakcjami
-        for transaction in transactions:
+        for recent_transaction in recent_transactions:
             row = self.history_table.rowCount()
             self.history_table.insertRow(row)
-            amount = abs(transaction[1])
-            self.history_table.setItem(row, 0, QTableWidgetItem(str(amount)))
-            self.history_table.setItem(row, 1, QTableWidgetItem(str(transaction[2])))
-            type = "wydatek" if transaction[3] == "expense" else "przychód"
+            amount = abs(recent_transaction[1])
+            self.history_table.setItem(row, 0, QTableWidgetItem(f"{amount:.1f} zł"))
+            self.history_table.setItem(row, 1, QTableWidgetItem(str(recent_transaction[2])))
+            type = "wydatek" if recent_transaction[3] == "expense" else "przychód"
             self.history_table.setItem(row, 2, QTableWidgetItem(type))
-            self.history_table.setItem(row, 3, QTableWidgetItem(str(transaction[4])))
+            self.history_table.setItem(row, 3, QTableWidgetItem(str(recent_transaction[4])))
+            self.history_table.setItem(row, 4, QTableWidgetItem(str(recent_transaction[5])))
 
         # Ustawiamy automatyczne wypełnianie całej dostępnej przestrzeni przez kolumny
         self.history_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
@@ -399,7 +400,7 @@ class MainWindow(QMainWindow):
         table_layout.addWidget(self.history_table)
 
         # Ustawiamy nagłówki / nazwy kolumn dla tabeli history_table
-        self.history_table.setHorizontalHeaderLabels(["Kwota", "Data", "Typ", "Kategoria"])
+        self.history_table.setHorizontalHeaderLabels(["Kwota", "Data", "Typ", "Kategoria", "Waluta"])
 
         # Dodajemy "kontener" na transakcje, do dolnego layoutu
         bottom_layout.addWidget(table_container)
@@ -571,7 +572,7 @@ class MainWindow(QMainWindow):
             self.standing_orders.setVisible(True)
         else:
             # A jeżeli nie istnieje, to tworzymy go inicjalizując klasę StandingOrders
-            self.standing_orders = StandingOrders(self.recurring)
+            self.standing_orders = StandingOrders(self.recurring, self.finance)
 
             # Dodajemy klasę standing_orders, do głównego layoutu
             self.layout.addWidget(self.standing_orders)
@@ -688,7 +689,7 @@ class MainWindow(QMainWindow):
             return
 
         # Inicjalizujemy klasę AddStandingOrderDialog
-        so_add = AddStandingOrderDialog(self.recurring)
+        so_add = AddStandingOrderDialog(self.recurring, self.finance)
 
         # Korzystamy z metody QDialog exec(), która pozwoli nam wyświetlić formularz dodawania transakcji, blokująć przy tym korzystanie z wszytkich innych okien aplikacji
         so_add.exec()
@@ -748,19 +749,20 @@ class MainWindow(QMainWindow):
         # Resetujemy liczbę wierszy
         self.history_table.setRowCount(0)
 
-        # Importujemy wszystkie transakcje, korzystając z funkcji show_history()
-        transactions = self.finance.show_history()
+        # Importujemy ostatnie 10 transakcji, korzystając z funkcji show_recent_history()
+        recent_transactions = self.finance.show_recent_history()
 
         # Iterujemy przez wszystkie transakcje, aby dodać je do tabeli z ostatnimi transakcjami
-        for transaction in transactions:
+        for recent_transactions in recent_transactions:
             row = self.history_table.rowCount()
             self.history_table.insertRow(row)
-            amount = abs(transaction[1])
-            self.history_table.setItem(row, 0, QTableWidgetItem(str(amount)))
-            self.history_table.setItem(row, 1, QTableWidgetItem(str(transaction[2])))
-            type = "wydatek" if transaction[3] == "expense" else "przychód"
+            amount = abs(recent_transactions[1])
+            self.history_table.setItem(row, 0, QTableWidgetItem(f"{amount:.1f} zł"))
+            self.history_table.setItem(row, 1, QTableWidgetItem(str(recent_transactions[2])))
+            type = "wydatek" if recent_transactions[3] == "expense" else "przychód"
             self.history_table.setItem(row, 2, QTableWidgetItem(type))
-            self.history_table.setItem(row, 3, QTableWidgetItem(str(transaction[4])))
+            self.history_table.setItem(row, 3, QTableWidgetItem(str(recent_transactions[4])))
+            self.history_table.setItem(row, 4, QTableWidgetItem(str(recent_transactions[5])))
 
         # Odświeżamy wykres
         self.chart.refresh_charts(self.finance.return_income(), self.finance.return_expense())

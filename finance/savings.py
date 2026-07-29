@@ -18,15 +18,16 @@ class Savings:
             target_amount REAl,
             saved_amount REAl,
             name TEXT,
-            date TEXT)
+            date TEXT,
+            currency_code TEXT)
             """)
 
     # Funkcja dodająca cele oszszczędnościowe
-    def add_savings_goal(self, target_amount, saved_amount, name, date):
+    def add_savings_goal(self, target_amount, saved_amount, name, date, currency_code):
         # Zapisujemy transakcję wraz z jej parametrami
         self.cursor.execute(
-            """INSERT INTO savings_goals (target_amount, saved_amount, name, date) VALUES (?, ?, ?, ?)""",
-            (target_amount, saved_amount, name, date)
+            """INSERT INTO savings_goals (target_amount, saved_amount, name, date, currency_code) VALUES (?, ?, ?, ?, ?)""",
+            (target_amount, saved_amount, name, date, currency_code)
         )
         # Zapisujemy zmiany i kończymy połączenie
         self.connection.commit()

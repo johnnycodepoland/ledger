@@ -7,10 +7,10 @@ class TransactionHistory(QWidget):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
 
-        # Inicjalizujemy klasę finance
+        # Inicjalizujemy klasę Finance
         self.finance = finance
 
-        # Inicjalizujemy klasę savings
+        # Inicjalizujemy klasę Savings
         self.savings = savings
 
         # Ustawiamy pionowy layout
@@ -36,7 +36,7 @@ class TransactionHistory(QWidget):
         table_container.setStyleSheet("#table_container {background-color: white; border-radius: 10px; padding: 10px;}")
 
         # Dodajemy tabele do widgetu na historię transakcji
-        self.history_table = QTableWidget(0, 5)
+        self.history_table = QTableWidget(0, 6)
 
         # Blokujemy możliwość edycji komórek w tabeli
         self.history_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
@@ -50,11 +50,12 @@ class TransactionHistory(QWidget):
             self.history_table.insertRow(row)
             self.history_table.setItem(row, 0, QTableWidgetItem(str(transaction[0])))
             amount = abs(transaction[1])
-            self.history_table.setItem(row, 1, QTableWidgetItem(str(amount)))
+            self.history_table.setItem(row, 1, QTableWidgetItem(f"{amount:.1f} zł"))
             self.history_table.setItem(row, 2, QTableWidgetItem(str(transaction[2])))
             type = "wydatek" if transaction[3] == "expense" else "przychód"
             self.history_table.setItem(row, 3, QTableWidgetItem(type))
             self.history_table.setItem(row, 4, QTableWidgetItem(str(transaction[4])))
+            self.history_table.setItem(row, 5, QTableWidgetItem(str(transaction[5])))
 
         # Ukrywamy kolumnę z ID
         self.history_table.setColumnHidden(0, True)
@@ -66,7 +67,7 @@ class TransactionHistory(QWidget):
         table_layout.addWidget(self.history_table)
 
         # Ustawiamy nagłówki / nazwy kolumn dla tabeli history_table
-        self.history_table.setHorizontalHeaderLabels(["ID", "Kwota", "Data", "Typ", "Kategoria"])
+        self.history_table.setHorizontalHeaderLabels(["ID", "Kwota", "Data", "Typ", "Kategoria", "Waluta"])
 
         # Dodajemy "kontener" na transakcje, do głównego layoutu
         self.central_layout.addWidget(table_container)
@@ -88,6 +89,13 @@ class TransactionHistory(QWidget):
         # Pobieramy cele osczędnościowe poprzez klasę Savings, korzystając z funkcji savings.show_savings_goals_history()
         savings_goals = self.savings.show_savings_goals_history()
 
+        # Pobieramy z tabeli dane, potrzebne w pętli iterującej przez wszystkie cele oszczędnościowe
+        amount = float(self.history_table.item(current_row, 1).text().replace(" zł", ""))
+
+        type = "expense" if self.history_table.item(current_row, 3).text() == "wydatek" else "income"
+
+        category = self.history_table.item(current_row, 4).text()
+
         # Iterujemy przez wszystkie cele osczędnościowe
         for savings_goal in savings_goals:
             # Porównujemy kategorie celu osczędnościowego z kategorią którą właśnie zapisujemy
@@ -95,7 +103,7 @@ class TransactionHistory(QWidget):
                 # Sprawdzamy typ transakcji
                 if type == "expense":
                     # Jeżeli typ transakcji to wydatek, to dodajemy wartość bezwzględną tej kwoty
-                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] + abs(amount))
+                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] - abs(amount))
                 else:
                     # Sprawdzamy czy po wykonaniu transakcji, saldo nie będzie ujemne
                     if savings_goal[2] - abs(amount) < 0:
@@ -103,7 +111,7 @@ class TransactionHistory(QWidget):
                         return
 
                     # Jeżeli typ transakcji to przychód, to odejmujemy wartość bezwzględną tej kwoty
-                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] - abs(amount))
+                    self.savings.edit_savings_goal(savings_goal[0], saved_amount=savings_goal[2] + abs(amount))
 
         # Usuwamy daną transakcję
         self.finance.delete_transaction(id)
@@ -162,8 +170,9 @@ class TransactionHistory(QWidget):
             self.history_table.insertRow(row)
             self.history_table.setItem(row, 0, QTableWidgetItem(str(transaction[0])))
             amount = abs(transaction[1])
-            self.history_table.setItem(row, 1, QTableWidgetItem(str(amount)))
+            self.history_table.setItem(row, 1, QTableWidgetItem(f"{amount:.1f} zł"))
             self.history_table.setItem(row, 2, QTableWidgetItem(str(transaction[2])))
             type = "wydatek" if transaction[3] == "expense" else "przychód"
             self.history_table.setItem(row, 3, QTableWidgetItem(type))
             self.history_table.setItem(row, 4, QTableWidgetItem(str(transaction[4])))
+            self.history_table.setItem(row, 5, QTableWidgetItem(str(transaction[5])))

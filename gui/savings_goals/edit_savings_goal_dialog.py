@@ -2,7 +2,6 @@ import datetime
 from PyQt6.QtWidgets import QDialog, QWidget, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QMessageBox
 
 class EditSavingsGoalDialog(QDialog):
-    # Dodatkowo przekazujemy obiekt Finance, aby wykorzystać ją potem do zapisania dodanej transakcji w bazie danych
     def __init__(self, id, savings, savings_goals):
         # Inicjalizacja klasy nadrzędnej, bez której program nie będzie poprawnie działał
         super().__init__()
@@ -10,7 +9,7 @@ class EditSavingsGoalDialog(QDialog):
         # Zapisujemy id jako self. żeby wszystkie funkcje miały do niego dostęp
         self.id = id
 
-        # Inicjalizujemy klasę savings
+        # Inicjalizujemy klasę Savings
         self.savings = savings
 
         # Inicjalizujemy klasę savings_goals

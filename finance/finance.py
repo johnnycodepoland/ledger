@@ -52,11 +52,11 @@ class Finance:
         self.connection.commit()
 
     # Funkcja dodająca transakcje
-    def add_transaction(self, amount, date, type, category):
+    def add_transaction(self, amount, date, type, category, currency_code, exchange_rate):
         # Zapisujemy transakcję wraz z jej parametrami
         self.cursor.execute(
-            """INSERT INTO transactions (amount, date, type, category) VALUES (?, ?, ?, ?)""",
-            (amount, date, type, category)
+            """INSERT INTO transactions (amount, date, type, category, currency_code, exchange_rate) VALUES (?, ?, ?, ?, ?, ?)""",
+            (amount, date, type, category, currency_code, exchange_rate)
         )
         # Zapisujemy zmiany i kończymy połączenie
         self.connection.commit()
@@ -86,7 +86,7 @@ class Finance:
 
         # Wyciągamy sumę z wszystkich przychodów
         self.cursor.execute(
-                """SELECT SUM(amount) FROM transactions WHERE type = ? and strftime('%m', date) = ? AND strftime('%Y', date) = ?""",
+            """SELECT SUM(amount) FROM transactions WHERE type = ? and strftime('%m', date) = ? AND strftime('%Y', date) = ?""",
             ("income", month, year)
         )
         income = self.cursor.fetchone()
@@ -108,7 +108,7 @@ class Finance:
 
         # Wyciągamy sumę z wszystkich przychodów
         self.cursor.execute(
-                """SELECT SUM(amount) FROM transactions WHERE type = ? and strftime('%m', date) = ? AND strftime('%Y', date) = ?""",
+            """SELECT SUM(amount) FROM transactions WHERE type = ? and strftime('%m', date) = ? AND strftime('%Y', date) = ?""",
             ("expense", month, year)
         )
         expense = self.cursor.fetchone()
@@ -125,30 +125,38 @@ class Finance:
         # Korzystamy z sortowania wbudowanego w sqlite3
         if category is not None and type is not None:
             self.cursor.execute(
-                """SELECT * FROM transactions WHERE category = ? AND type = ?""",
+                """SELECT * FROM transactions WHERE category = ? AND type = ? ORDER BY id DESC""",
                 (category, type,)
             )
         elif category is not None:
             self.cursor.execute(
-                """SELECT * FROM transactions WHERE category = ?""",
+                """SELECT * FROM transactions WHERE category = ? ORDER BY id DESC""",
                 (category,)
             )
         elif type is not None:
             self.cursor.execute(
-                """SELECT * FROM transactions WHERE type = ?""",
+                """SELECT * FROM transactions WHERE type = ? ORDER BY id DESC""",
                 (type,)
             )
         else:
             self.cursor.execute(
-                """SELECT * FROM transactions"""
+                """SELECT * FROM transactions ORDER BY id DESC"""
             )
         transactions = self.cursor.fetchall()
         return transactions
 
+    # Funkcja wypisująca 10 ostatnich transakcji
+    def show_recent_history(self):
+        # Wybieramy 10 ostatnich transakcji
+        self.cursor.execute(
+            """SELECT * FROM transactions ORDER BY id desc LIMIT 10""")
+        recent_transactions = self.cursor.fetchall()
+        return recent_transactions
+
     # Funkcja wypisująca wszystkie kody walut
     def get_currencies(self):
         # Wybieramy wszystko z kolumny currency_code
-        self.cursor.execute("SELECT currency_code FROM currencies")
+        self.cursor.execute("""SELECT currency_code FROM currencies""")
         # Wysuwamy PLN na samą górę
         self.cursor.execute(
             """SELECT currency_code FROM currencies ORDER BY currency_code = 'PLN' DESC"""
@@ -156,8 +164,19 @@ class Finance:
         # Zwracamy kody walut
         return self.cursor.fetchall()
 
+    # Funkcja pobiera kurs dla danego kodu waluty
+    def get_exchange_rate(self, currency_code):
+        # Wyciągamy kurs dla wybrengo kodu waluty
+        self.cursor.execute(
+        """SELECT exchange_rate FROM currencies WHERE currency_code = ?""",
+            (currency_code,)
+        )
+        exchange_rate = self.cursor.fetchone()
+        # Zwracamy kurs
+        return exchange_rate[0]
+
     # Funkcja umożliwiająca edycję transakcji
-    def edit_transaction(self, id, amount=None, date=None, type=None, category=None):
+    def edit_transaction(self, id, amount=None, date=None, type=None, category=None, currency_code=None, exchange_rate=None):
         if amount is not None:
             self.cursor.execute(
                 """UPDATE transactions
@@ -185,6 +204,20 @@ class Finance:
                 SET category = ?
                 WHERE id = ?""",
                 (category, id)
+            )
+        if currency_code is not None:
+            self.cursor.execute(
+                """UPDATE transactions
+                SET currency_code = ?
+                WHERE id = ?""",
+                (currency_code, id)
+            )
+        if exchange_rate is not None:
+            self.cursor.execute(
+                """UPDATE transactions
+                SET exchange_rate = ?
+                WHERE id = ?""",
+                (exchange_rate, id)
             )
         # Zapisujemy zmiany i kończymy połączenie
         self.connection.commit()
