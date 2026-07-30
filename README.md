@@ -52,7 +52,7 @@ Before installing and running the application, ensure you have:
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone <[repository-url](https://github.com/johnnycodepoland/ledger)>
 cd ledger
 ```
 
