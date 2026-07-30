@@ -1,4 +1,5 @@
 import datetime
+import requests
 import sqlite3
 import os
 
@@ -32,6 +33,33 @@ class Finance:
 
         # Dodajemy podstawowe waluty
         self.initialize_currencies()
+
+        # Aktualizujemy kursy walut
+        self.update_exchange_rates()
+
+    # Funkcja pobierająca aktualny kurs walut poprzez exchangerate-api.com, który jest następnie aktutalizowany
+    def update_exchange_rates(self):
+        # Ustawiamy adres url do pobrania kursu walut
+        url = "https://v6.exchangerate-api.com/v6/e1336ab92ccda65437b1b7d0/latest/PLN"
+
+        # Wysyłamy prośbe do adresu url
+        response = requests.get(url)
+        # Sprawdzamy czy wszystko poprawanie działa
+        if response.status_code == 200:
+            exchange_rates = response.json()
+        else:
+            print(f"Error: {response.status_code}")
+        # Aktualizujemy kursy walut
+        self.cursor.execute(
+            """UPDATE currencies SET exchange_rate = ? WHERE currency_code = ?""",
+            (1 / exchange_rates["conversion_rates"]["EUR"], "EUR")
+        )
+        self.cursor.execute(
+            """UPDATE currencies SET exchange_rate = ? WHERE currency_code = ?""",
+            (1 / exchange_rates["conversion_rates"]["USD"], "USD")
+        )
+        # Zapisujemy zmiany i kończymy połączenie
+        self.connection.commit()
 
     # Funkcja dodająca podstawowe waluty
     def initialize_currencies(self):
