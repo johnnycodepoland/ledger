@@ -284,7 +284,7 @@ class MainWindow(QMainWindow):
         month_widget_expense = QLabel("Wydatki (miesiąc):")
 
         # Tworzymy widget na kwotę wpłat za dany miesiąc
-        self.amount_widget_expense = QLabel(f"{self.finance.return_expense()}zł")
+        self.amount_widget_expense = QLabel(f"{round(self.finance.return_expense(), 2)}zł")
 
         # Ustawiamy styl kontenera na wpłaty
         expense_container.setStyleSheet("background-color: white; border-radius: 10px; padding: 10px;")
@@ -320,7 +320,7 @@ class MainWindow(QMainWindow):
         month_widget_income = QLabel("Wpłaty (miesiąc):")
 
         # Tworzymy widget na kwotę wpłat za dany miesiąc
-        self.amount_widget_income = QLabel(f"{self.finance.return_income()}zł")
+        self.amount_widget_income = QLabel(f"{round(self.finance.return_income(), 2)}zł")
 
         # Ustawiamy styl kontenera na wpłaty
         income_container.setStyleSheet("background-color: white; border-radius: 10px; padding: 10px;")
