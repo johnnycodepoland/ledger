@@ -80,7 +80,7 @@ class EditStandingOrderDialog(QDialog):
         # Wczytujemy dostępne waluty
         self.update_currencies()
 
-    # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
+    # Tworzymy funkcję, która poprzez klasę Recurring zapiszę nam naszą nową stałą transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
     def edit_standing_order(self):
         # Wyciągamy z wartość tekstową, z pól formularza, przy pomocy metody text()
         try:
@@ -122,7 +122,7 @@ class EditStandingOrderDialog(QDialog):
         # Akceptujemy prawidłowe zakończenie, dodawania danych z formularza
         self.accept()
 
-    # Tworzymy funkcję, która pozwoli nam aktualizować wybór kategorii stałej transakcji, w zależności od wybranego typu transakcji
+    # Tworzymy funkcję, która pozwoli nam aktualizować wybór kategorii stałej transakcji, w zależności od wybranego typu stałej transakcji
     def update_categories(self):
         # Sprawdzamy typ stałej transakcji
         if self.type_input.currentText() == "Wydatek":
@@ -169,6 +169,7 @@ class EditStandingOrderDialog(QDialog):
 
             self.category_input.addItem("💰 Inne przychody")
 
+    # Tworzymy funkcja, która doda nam dostępne waluty do okienka dodawania transakcji
     def update_currencies(self):
         # Pobieramy waluty poprzez klasę Finance, korzystając z funkcji finance.get_currencies()
         currencies = self.finance.get_currencies()

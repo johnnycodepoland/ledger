@@ -191,6 +191,7 @@ class EditTransactionDialog(QDialog):
                 # Dodajemy name do kategorii transakcji
                 self.category_input.addItem(name)
 
+    # Tworzymy funkcja, która doda nam dostępne waluty do okienka edycji transakcji
     def update_currencies(self):
         # Pobieramy waluty poprzez klasę Finance, korzystając z funkcji finance.get_currencies()
         currencies = self.finance.get_currencies()

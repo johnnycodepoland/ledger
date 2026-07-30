@@ -47,7 +47,7 @@ class FilterStandingOrdersDialog(QDialog):
         # Wczytujemy od razy kategorie dla przychodów, aby dodawanie zajmowało mniej czasu
         self.update_categories()
 
-    # Tworzymy funkcję, która poprzez klasę Finance zapiszę nam naszą nową transakcję, po zaakceptowaniu danych z formularza przyciskiem "Edytuj transakcję"
+    # Tworzymy funkcję, która poprzez klasę Recurring wyfiltruje nam wybrane transakcje
     def filter_transaction(self):
         # Zamieniamy dane z formularza na tekst
         self.type = self.type_input.currentText()

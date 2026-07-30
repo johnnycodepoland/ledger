@@ -205,6 +205,7 @@ class Finance:
 
     # Funkcja umożliwiająca edycję transakcji
     def edit_transaction(self, id, amount=None, date=None, type=None, category=None, currency_code=None, exchange_rate=None):
+        # Sprawdzamy które zmienne dostała funkcja, a następnie jeśli istnieją, aktualizujemy je
         if amount is not None:
             self.cursor.execute(
                 """UPDATE transactions
@@ -252,6 +253,7 @@ class Finance:
 
     # Funkcja umożliwiająca usunięcie transakcji
     def delete_transaction(self, id):
+        # Usuwamy transakcja o id które otrzymała funkcja
         self.cursor.execute(
             """DELETE FROM transactions WHERE id = ?""",
             (id,)

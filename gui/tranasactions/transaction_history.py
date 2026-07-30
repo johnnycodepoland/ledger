@@ -19,6 +19,7 @@ class TransactionHistory(QWidget):
         # Dodajemy widget na tabele na historię transakcji
         self.create_transaction_table()
 
+    # Tworzmymy funkcje która stworzy nam tabele na historie transakcji
     def create_transaction_table(self):
         # Tworzymy "kontener" na historię transakcji, aby uniknąć błędu ze stylem widgetu na transakcje, który jest w formie tabeli
         table_container = QWidget()
@@ -72,6 +73,7 @@ class TransactionHistory(QWidget):
         # Dodajemy "kontener" na transakcje, do głównego layoutu
         self.central_layout.addWidget(table_container)
 
+    # Tworzymy funkcje która pozwoli nam usunąć wybraną stałą transakcje
     def delete_transaction(self):
         # Sprawdzamy, czy wiersz został uprzednio zaznaczony
         if self.history_table.currentRow() == -1:
@@ -119,6 +121,7 @@ class TransactionHistory(QWidget):
         # Odświeżamy tabele z historią transakcji
         self.refresh_history_table()
 
+    # Tworzymy funkcje która otworzy nam okno edycji transakcji
     def open_edit_dialog(self):
         # Sprawdzamy, czy wiersz został uprzednio zaznaczony
         if self.history_table.currentRow() == -1:
@@ -142,6 +145,7 @@ class TransactionHistory(QWidget):
         # Odświeżamy tabele z historią transakcji
         self.refresh_history_table()
 
+    # Tworzymym funkcje która otworzy nam okno filtracji transakcji
     def open_filter_dialog(self):
         # Inicjalizujemy klasę FilterTransactionHistory
         filter = FilterTransactionsDialog()

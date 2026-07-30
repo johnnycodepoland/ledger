@@ -19,6 +19,7 @@ class StandingOrders(QWidget):
         # Dodajemy widget na tabele na stałe transakcje
         self.create_standing_orders_table()
 
+    # Tworzymy funkcje która stworzy nam tabele na stałe transakcje
     def create_standing_orders_table(self):
         # Tworzymy "kontener" na stałe transakcje, aby uniknąć błędu ze stylem widgetu na transakcje, który jest w formie tabeli
         standing_orders_container = QWidget()
@@ -66,12 +67,13 @@ class StandingOrders(QWidget):
         # Dodajemy widget na historię transakcji do layoutu "kontenera" na stałe transakcje
         standing_orders_layout.addWidget(self.standing_orders_table)
 
-        # Ustawiamy nagłówki / nazwy kolumn dla tabeli history_table
+        # Ustawiamy nagłówki / nazwy kolumn dla tabeli standing_orders_table
         self.standing_orders_table.setHorizontalHeaderLabels(["ID", "Kwota", "Dzień miesiąca", "Typ", "Kategoria", "Waluta"])
 
-        # Dodajemy "kontener" na transakcje, do głównego layoutu
+        # Dodajemy "kontener" na stałe transakcje, do głównego layoutu
         self.central_layout.addWidget(standing_orders_container)
 
+    # Tworzymym funkcje która usunie nam wybraną stałą transakcje
     def delete_standing_order(self):
         # Sprawdzamy, czy wiersz został uprzednio zaznaczony
         if self.standing_orders_table.currentRow() == -1:
@@ -92,6 +94,7 @@ class StandingOrders(QWidget):
         # Odświeżamy tabele ze stałym transakcjami
         self.refresh_standing_orders_table()
 
+    # Tworzymym funkcje która otworzy nam okno edycji stałych transakcji
     def open_edit_dialog(self):
         # Sprawdzamy, czy wiersz został uprzednio zaznaczony
         if self.standing_orders_table.currentRow() == -1:
@@ -115,6 +118,7 @@ class StandingOrders(QWidget):
         # Odświeżamy tabele z historią stałych transakcji
         self.refresh_standing_orders_table()
 
+    # Tworzymy funkcje która otworzy nam okno filtracji stałych transakcji
     def open_filter_dialog(self):
         # Inicjalizujemy klasę FilterTransactionDialog
         filter = FilterStandingOrdersDialog()
@@ -129,7 +133,7 @@ class StandingOrders(QWidget):
             # Odświeżamy tabele z historią stałych transakcji
             self.refresh_standing_orders_table(type, category)
 
-    # Dodajemy funkcję, która odświeży nam historię transakcji po jakiejś aktywności np. usunięciu stałej transakcji
+    # Dodajemy funkcję, która odświeży nam historię stałych transakcji po jakiejś aktywności np. usunięciu stałej transakcji
     def refresh_standing_orders_table(self, type=None, category=None):
         # Resetujemy liczbę wierszy
         self.standing_orders_table.setRowCount(0)

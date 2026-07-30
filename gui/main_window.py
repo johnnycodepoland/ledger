@@ -658,7 +658,7 @@ class MainWindow(QMainWindow):
 
         self.sg_delete_button.setVisible(True)
 
-    # Ta funkcji usunie nam wybraną transakcję, tylko jeśli będziemy znajdować się w oknie "Transactions"
+    # Te funkcje wykonają wybraną akcje, tylko jeśli będziemy znajdować się w oknie "Transactions"
     def on_delete_clicked(self):
         # Sprawdzamy aktualnie otwartą zakładkę
         if self.current_tab == "Dashboard":
@@ -697,6 +697,7 @@ class MainWindow(QMainWindow):
         # Odświeżamy tabele na stałe transakcje
         self.standing_orders.refresh_standing_orders_table()
 
+    # Te funkcje wykonają wybraną akcje, tylko jeśli będziemy znajdować się w odpowiednim oknie
     def on_so_delete_clicked(self):
         if self.current_tab == "Dashboard" or self.current_tab == "Transactions":
             return

@@ -60,15 +60,6 @@ class Recurring:
         transactions = self.cursor.fetchall()
         return transactions
 
-    # Funkcja umożliwiająca usunięcie cyklicznej transakcji
-    def delete_recurring_transaction(self, id):
-        self.cursor.execute(
-            """DELETE FROM recurring_transactions WHERE id = ?""",
-            (id,)
-        )
-        # Zapisujemy zmiany i kończymy połączenie
-        self.connection.commit()
-
     # Funkcja, która sprawdza, czy w dzisiejszym dniu są do dodania jakieś stałe transakcje
     def process_recurring_transaction(self):
         # Zapisujemy dzisiejszy dzień, miesiąc i rok
@@ -98,6 +89,7 @@ class Recurring:
 
     # Funkcja umożliwiająca edycję cyklicznej transakcji
     def edit_recurring_transaction(self, id, amount=None, day=None, type=None, category=None, currency_code=None, exchange_rate=None):
+        # Sprawdzamy które zmienne dostała funkcja, a następnie jeśli istnieją, aktualizujemy je
         if amount is not None:
             self.cursor.execute(
                 """UPDATE recurring_transactions
@@ -142,3 +134,13 @@ class Recurring:
             )
         # Zapisujemy zmiany i kończymy połączenie
         self.connection.commit()
+
+        # Funkcja umożliwiająca usunięcie cyklicznej transakcji
+        def delete_recurring_transaction(self, id):
+            # Usuwamy transakcja o id które otrzymała funkcja
+            self.cursor.execute(
+                """DELETE FROM recurring_transactions WHERE id = ?""",
+                (id,)
+            )
+            # Zapisujemy zmiany i kończymy połączenie
+            self.connection.commit()

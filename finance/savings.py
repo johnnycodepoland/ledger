@@ -42,6 +42,7 @@ class Savings:
 
     # Funkcja umożliwiająca celów oszczędnościowych
     def edit_savings_goal(self, id, target_amount=None, saved_amount=None, name=None, date=None):
+        # Sprawdzamy które zmienne dostała funkcja, a następnie jeśli istnieją, aktualizujemy je
         if target_amount is not None:
             self.cursor.execute(
                 """UPDATE savings_goals
@@ -75,6 +76,7 @@ class Savings:
 
     # Funkcja umożliwiająca usunięcie celu oszczędnościowego
     def delete_savings_goal(self, id):
+        # Usuwamy transakcja o id które otrzymała funkcja
         self.cursor.execute(
             """DELETE FROM savings_goals WHERE id = ?""",
             (id,)
