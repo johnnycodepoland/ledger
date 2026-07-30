@@ -741,11 +741,11 @@ class MainWindow(QMainWindow):
     # Tworzymy funkcje do odświeżania dashboardu
     def refresh_dashboard(self):
         # Ustawiamy na nowo wszystkie wartości widgetów
-        self.balance_label.setText(f"Saldo: {self.finance.return_balance()}zł")
+        self.balance_label.setText(f"Saldo: {round(self.finance.return_balance(), 2)}zł")
 
-        self.amount_widget_income.setText(f"{self.finance.return_income()}zł")
+        self.amount_widget_income.setText(f"{round(self.finance.return_income(), 2)}zł")
 
-        self.amount_widget_expense.setText(f"{self.finance.return_expense()}zł")
+        self.amount_widget_expense.setText(f"{round(self.finance.return_expense(), 2)}zł")
 
         # Resetujemy liczbę wierszy
         self.history_table.setRowCount(0)
