@@ -2,6 +2,7 @@ import datetime
 import requests
 import sqlite3
 import os
+from dotenv import load_dotenv
 
 class Finance:
     def __init__(self):
@@ -31,6 +32,12 @@ class Finance:
             exchange_rate REAL)
             """)
 
+        # Korzystamy z funkcji specjalnej biblioteki która pozwoli użytkownikowi korzystać z klucza api, jednocześnie blokując do niego dostęp
+        load_dotenv()
+
+        # Zapisujemy klucz api do zmiennej
+        self.api_key = os.getenv("EXCHANGE_API_KEY")
+
         # Dodajemy podstawowe waluty
         self.initialize_currencies()
 
@@ -40,7 +47,7 @@ class Finance:
     # Funkcja pobierająca aktualny kurs walut poprzez exchangerate-api.com, który jest następnie aktutalizowany
     def update_exchange_rates(self):
         # Ustawiamy adres url do pobrania kursu walut
-        url = "https://v6.exchangerate-api.com/v6/e1336ab92ccda65437b1b7d0/latest/PLN"
+        url = f"https://v6.exchangerate-api.com/v6/{self.api_key}/latest/PLN"
 
         # Wysyłamy prośbe do adresu url
         response = requests.get(url)
