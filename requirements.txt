@@ -1,0 +1,5 @@
+matplotlib==3.9.4
+numpy==2.0.2
+PyQt6==6.10.2
+python-dotenv==1.2.1
+requests==2.32.5
